@@ -8,7 +8,15 @@ import { Prisma } from '@prisma/client';
 export class AuthService {
   constructor(private prisma: PrismaService) {}
   async login(dto: LoginDto) {
-    return 'Logged In';
+    const user = await this.prisma.user.findUnique({
+      where: {
+        username: dto.username,
+      },
+    });
+    if (!user) throw new ForbiddenException('Credentials incorrect');
+
+    const passwordMatches = await argon.verify(user.hash, dto.password);
+    if (!passwordMatches) throw new ForbiddenException('Credentials incorrect');
   }
 
   async signup(dto: SignupDto) {
@@ -34,6 +42,7 @@ export class AuthService {
             throw new ForbiddenException('email already in use');
         }
       }
+      throw error;
     }
   }
 }
