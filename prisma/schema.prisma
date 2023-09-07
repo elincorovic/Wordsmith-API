@@ -30,6 +30,7 @@ model User {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   username    String   @unique
+  fullname    String?
   phonenumber Int?     @unique
   email       String   @unique
   password    String
