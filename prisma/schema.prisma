@@ -33,8 +33,8 @@ model User {
   fullname    String?
   phonenumber Int?     @unique
   email       String   @unique
-  password    String
-  img_path    String   @unique
+  hash        String
+  img_path    String?  @unique
 }
 
 model Category {
