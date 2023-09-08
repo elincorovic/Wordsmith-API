@@ -6,7 +6,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 //strategy for extracting jwt from headers
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   //'jwt' is the key for auth guards
   constructor(
     config: ConfigService, //not private because its used in super (must be called before anything)
