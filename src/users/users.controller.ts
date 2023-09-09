@@ -3,7 +3,7 @@ import { Request } from 'express';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtGuard } from 'src/auth/guard';
-import { GetUser } from 'src/auth/decorator';
+import { GetUser } from 'src/utils/decorators';
 import { User } from '@prisma/client';
 
 @UseGuards(JwtGuard)
