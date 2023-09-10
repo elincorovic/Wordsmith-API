@@ -1,4 +1,4 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -15,4 +15,7 @@ export class UsersController {
   getMe(@GetUser() user: User) {
     return user;
   }
+
+  @Patch()
+  updateUser(@Body())
 }
