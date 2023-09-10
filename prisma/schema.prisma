@@ -11,40 +11,59 @@ datasource db {
 }
 
 model Book {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id          Int                 @id @default(autoincrement())
   title       String
   author      String
   year        Int
   pages       Int
   language    String
   description String
-  img_path    String   @unique
+  img_path    String              @unique
+  categories  CategoriesOnBooks[]
+  ratings     Rating[]
   // ISBN collection
-  // categories collection
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+}
+
+model Category {
+  id        Int                 @id @default(autoincrement())
+  title     String
+  img_path  String
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+  books     CategoriesOnBooks[]
+}
+
+model CategoriesOnBooks {
+  book       Book     @relation(fields: [bookId], references: [id])
+  bookId     Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+  createdAt  DateTime @default(now())
+
+  @@id([bookId, categoryId])
 }
 
 model User {
   id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
   username    String   @unique
   fullname    String?
   phonenumber Int?     @unique
   email       String   @unique
   hash        String
   img_path    String?  @unique
-}
-
-model Category {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  ratings     Rating[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Rating {
   id        Int      @id @default(autoincrement())
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  Int
+  book      Book     @relation(fields: [bookId], references: [id])
+  bookId    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
