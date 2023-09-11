@@ -49,7 +49,7 @@ model User {
   id          Int      @id @default(autoincrement())
   username    String   @unique
   fullname    String?
-  phonenumber Int?     @unique
+  phonenumber BigInt?  @unique
   email       String   @unique
   hash        String
   img_path    String?  @unique

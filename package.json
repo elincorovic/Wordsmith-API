@@ -9,7 +9,7 @@
     "db:dev:deploy": "prisma migrate deploy",
     "db:dev:rm": "docker compose rm db -s -f -v",
     "db:dev:up": "docker compose up db -d",
-    "db:dev:rs": "npm run db:dev:rm && npm run db:dev:up && npm run db:dev:deploy",
+    "db:dev:rs": "npm run db:dev:rm && npm run db:dev:up && sleep 2 && npm run db:dev:deploy",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
@@ -81,5 +81,8 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   }
 }
