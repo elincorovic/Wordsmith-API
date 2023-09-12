@@ -24,8 +24,19 @@ export class BooksService {
         b.title
       `;
 
-    console.log(books);
-
     return books;
+  }
+
+  async getBook(bookId: number) {
+    const book = this.prisma.book.findUnique({
+      where: {
+        id: bookId,
+      },
+      include: {
+        ratings: true,
+      },
+    });
+
+    return book;
   }
 }

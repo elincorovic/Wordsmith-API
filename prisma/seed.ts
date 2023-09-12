@@ -144,7 +144,7 @@ async function main() {
   const rating1 = await prisma.rating.create({
     data: {
       rating: 5,
-      authorId: user1.id,
+      username: user1.username,
       bookId: book1.id,
     },
   });
@@ -152,7 +152,7 @@ async function main() {
   const rating2 = await prisma.rating.create({
     data: {
       rating: 2,
-      authorId: user2.id,
+      username: user2.username,
       bookId: book2.id,
     },
   });
@@ -160,7 +160,7 @@ async function main() {
   const rating3 = await prisma.rating.create({
     data: {
       rating: 3,
-      authorId: user2.id,
+      username: user2.username,
       bookId: book3.id,
     },
   });
@@ -168,7 +168,7 @@ async function main() {
   const rating4 = await prisma.rating.create({
     data: {
       rating: 4,
-      authorId: user2.id,
+      username: user2.username,
       bookId: book4.id,
     },
   });
@@ -176,7 +176,7 @@ async function main() {
   const rating5 = await prisma.rating.create({
     data: {
       rating: 1,
-      authorId: user2.id,
+      username: user2.username,
       bookId: book5.id,
     },
   });
@@ -184,7 +184,7 @@ async function main() {
   const rating6 = await prisma.rating.create({
     data: {
       rating: 2,
-      authorId: user2.id,
+      username: user2.username,
       bookId: book1.id,
     },
   });
