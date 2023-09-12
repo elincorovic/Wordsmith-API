@@ -6,15 +6,25 @@ export class BooksService {
   constructor(private prisma: PrismaService) {}
 
   async getBooks() {
-    const books = await this.prisma.book.findMany({
-      include: {
-        categories: {
-          select: {
-            title: true,
-          },
-        },
-      },
-    });
+    const books = await this.prisma.$queryRaw`
+      SELECT
+        b.id,
+        b.title,
+        b.author,
+        b.img_path,
+        AVG(r.rating)::float as avgRating,
+        COUNT(r.rating)::integer as countRatings
+      FROM
+        "Book" b
+      LEFT JOIN
+        "Rating" r ON b.id = r."bookId"
+      GROUP BY
+        b.id, b.title
+      ORDER BY
+        b.title
+      `;
+
+    console.log(books);
 
     return books;
   }
