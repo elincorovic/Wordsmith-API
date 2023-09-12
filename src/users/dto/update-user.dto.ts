@@ -8,8 +8,8 @@ import {
 
 export class UpdateUserDto {
   @IsString()
-  @IsNotEmpty()
-  username: string;
+  @IsOptional()
+  username?: string;
 
   @IsString()
   @IsOptional()
@@ -20,6 +20,6 @@ export class UpdateUserDto {
   phonenumber?: string;
 
   @IsEmail()
-  @IsNotEmpty()
-  email: string;
+  @IsOptional()
+  email?: string;
 }
