@@ -6,6 +6,7 @@ import { JwtGuard } from 'src/auth/guard';
 import { GetUser } from 'src/utils/decorators';
 import { User } from '@prisma/client';
 import { UpdateUserDto } from './dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @UseGuards(JwtGuard)
 @Controller('users')
@@ -20,5 +21,13 @@ export class UsersController {
   @Patch()
   updateUser(@GetUser('id') userId: number, @Body() dto: UpdateUserDto) {
     return this.usersService.updateUser(userId, dto);
+  }
+
+  @Patch('me/change-password')
+  changePassword(
+    @GetUser('id') userId: number,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    return this.usersService.changePassword(userId, dto);
   }
 }
