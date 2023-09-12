@@ -33,6 +33,20 @@ async function main() {
     },
   });
 
+  const category5 = await prisma.category.create({
+    data: {
+      title: 'Mystery',
+      img_path: 'mystery.jpg',
+    },
+  });
+
+  const category6 = await prisma.category.create({
+    data: {
+      title: 'Science-Fiction',
+      img_path: 'science-fiction.jpg',
+    },
+  });
+
   // Create Books
   const book1 = await prisma.book.create({
     data: {
@@ -43,6 +57,9 @@ async function main() {
       language: 'English',
       description: 'A classic novel about the American Dream.',
       img_path: 'gatsby.jpg',
+      categories: {
+        connect: [category1, category2],
+      },
     },
   });
 
@@ -55,29 +72,55 @@ async function main() {
       language: 'English',
       description: 'A thought-provoking exploration of human history.',
       img_path: 'sapiens.jpg',
+      categories: {
+        connect: [category3, category4],
+      },
     },
   });
 
-  //Create Relations Books-Categories
-  const booksCategoriesRelations = await prisma.categoriesOnBooks.createMany({
-    data: [
-      {
-        bookId: book1.id,
-        categoryId: category1.id,
+  const book3 = await prisma.book.create({
+    data: {
+      title: 'To Kill a Mockingbird',
+      author: 'Harper Lee',
+      year: 1960,
+      pages: 281,
+      language: 'English',
+      description: 'A novel addressing racial injustice in the American South.',
+      img_path: 'mockingbird.jpg',
+      categories: {
+        connect: [category5, category6],
       },
-      {
-        bookId: book1.id,
-        categoryId: category2.id,
+    },
+  });
+
+  const book4 = await prisma.book.create({
+    data: {
+      title: '1984',
+      author: 'George Orwell',
+      year: 1949,
+      pages: 328,
+      language: 'English',
+      description: 'A dystopian novel about a totalitarian regime.',
+      img_path: '1984.jpg',
+      categories: {
+        connect: [category2, category5, category6],
       },
-      {
-        bookId: book2.id,
-        categoryId: category3.id,
+    },
+  });
+
+  const book5 = await prisma.book.create({
+    data: {
+      title: 'Pride and Prejudice',
+      author: 'Jane Austen',
+      year: 1813,
+      pages: 279,
+      language: 'English',
+      description: 'A classic romance novel set in 19th-century England.',
+      img_path: 'pride_and_prejudice.jpg',
+      categories: {
+        connect: [category2, category3, category4],
       },
-      {
-        bookId: book2.id,
-        categoryId: category4.id,
-      },
-    ],
+    },
   });
 
   // Create Users
