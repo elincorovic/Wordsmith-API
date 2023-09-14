@@ -6,7 +6,12 @@ export class CategoriesService {
   constructor(private prisma: PrismaService) {}
 
   getCategories() {
-    const categories = this.prisma.category.findMany({});
+    const categories = this.prisma.category.findMany({
+      select: {
+        title: true,
+        img_path: true,
+      },
+    });
     return categories;
   }
 }
