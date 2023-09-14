@@ -43,6 +43,7 @@ model User {
   email       String   @unique
   hash        String
   img_path    String?  @unique
+  isAdmin     Boolean  @default(false)
   ratings     Rating[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

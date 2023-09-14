@@ -128,6 +128,7 @@ async function main() {
     data: {
       username: 'user1',
       email: 'john@example.com',
+      isAdmin: true,
       hash: await argon.hash('password123'),
     },
   });
