@@ -5,7 +5,11 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class BooksService {
   constructor(private prisma: PrismaService) {}
 
-  async getBooks() {
+  async getBooks(query: any) {
+    const category = query.category ? query.category.split(',') : null;
+    const year = query.year ? query.year.split(',') : null;
+    const rating = query.rating ? query.rating.split(',') : null;
+
     const books = await this.prisma.$queryRaw`
       SELECT
         b.id,
