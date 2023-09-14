@@ -6,27 +6,25 @@ export class BooksService {
   constructor(private prisma: PrismaService) {}
 
   async getBooks(query: any) {
-    const category = query.category ? query.category.split(',') : null;
+    const category = query.category
+      ? query.category.split(',')
+      : (await this.prisma.category.findMany({ select: { title: true } })).map(
+          (category) => category.title,
+        );
     const year = query.year ? query.year.split(',') : null;
     const rating = query.rating ? query.rating.split(',') : null;
 
-    const books = await this.prisma.$queryRaw`
-      SELECT
-        b.id,
-        b.title,
-        b.author,
-        b.img_path,
-        AVG(r.rating)::float as avgRating,
-        COUNT(r.rating)::integer as countRatings
-      FROM
-        "Book" b
-      LEFT JOIN
-        "Rating" r ON b.id = r."bookId"
-      GROUP BY
-        b.id, b.title
-      ORDER BY
-        b.title
-      `;
+    const books = await this.prisma.book.findMany({
+      where: {
+        categories: {
+          some: {
+            title: {
+              in: category,
+            },
+          },
+        },
+      },
+    });
 
     return books;
   }
