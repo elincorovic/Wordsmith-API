@@ -53,9 +53,21 @@ export class BooksService {
       },
     });
 
-    const booksSummarized = summarizeRatings(books);
+    let booksRatingsSummarized = summarizeRatings(books);
 
-    return booksSummarized;
+    if (fromRating || toRating) {
+      booksRatingsSummarized = booksRatingsSummarized.filter((book) => {
+        if (fromRating && toRating) {
+          return book.ratings.avg >= fromRating && book.ratings.avg <= toRating;
+        } else if (fromRating) {
+          return book.ratings.avg >= fromRating;
+        } else if (toRating) {
+          return book.ratings.avg <= toRating;
+        }
+      });
+    }
+
+    return booksRatingsSummarized;
   }
 
   async getBook(bookId: number) {
