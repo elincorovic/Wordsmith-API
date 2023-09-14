@@ -1,5 +1,6 @@
 import { Get, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { summarizeRatings } from 'src/utils/bookUtils/summarized-ratings';
 
 @Injectable()
 export class BooksService {
@@ -22,6 +23,7 @@ export class BooksService {
         },
       };
     }
+
     if (fromYear && toYear) {
       filterObj.year = {
         gte: fromYear,
@@ -39,9 +41,21 @@ export class BooksService {
 
     const books = await this.prisma.book.findMany({
       where: filterObj,
+      select: {
+        title: true,
+        author: true,
+        img_path: true,
+        ratings: {
+          select: {
+            rating: true,
+          },
+        },
+      },
     });
 
-    return books;
+    const booksSummarized = summarizeRatings(books);
+
+    return booksSummarized;
   }
 
   async getBook(bookId: number) {
