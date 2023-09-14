@@ -6,24 +6,39 @@ export class BooksService {
   constructor(private prisma: PrismaService) {}
 
   async getBooks(query: any) {
-    const category = query.category
-      ? query.category.split(',')
-      : (await this.prisma.category.findMany({ select: { title: true } })).map(
-          (category) => category.title,
-        );
-    const year = query.year ? query.year.split(',') : null;
-    const rating = query.rating ? query.rating.split(',') : null;
+    const category = query.category ? query.category.split(',') : null;
+    const fromYear = query.fromYear ? parseInt(query.fromYear) : null;
+    const toYear = query.toYear ? parseInt(query.toYear) : null;
+    const fromRating = query.fromRating ? parseInt(query.fromRating) : null;
+    const toRating = query.toRating ? parseInt(query.toRating) : null;
 
-    const books = await this.prisma.book.findMany({
-      where: {
-        categories: {
-          some: {
-            title: {
-              in: category,
-            },
+    let filterObj: any = {};
+    if (category) {
+      filterObj.categories = {
+        some: {
+          title: {
+            in: category,
           },
         },
-      },
+      };
+    }
+    if (fromYear && toYear) {
+      filterObj.year = {
+        gte: fromYear,
+        lte: toYear,
+      };
+    } else if (fromYear) {
+      filterObj.year = {
+        gte: fromYear,
+      };
+    } else if (toYear) {
+      filterObj.year = {
+        lte: toYear,
+      };
+    }
+
+    const books = await this.prisma.book.findMany({
+      where: filterObj,
     });
 
     return books;
