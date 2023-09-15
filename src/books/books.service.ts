@@ -1,6 +1,7 @@
 import { Get, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { summarizeRatings } from 'src/utils/bookUtils/summarized-ratings';
+import { CreateBookDto } from './dto/create-book.dto';
 
 @Injectable()
 export class BooksService {
@@ -81,5 +82,10 @@ export class BooksService {
     });
 
     return book;
+  }
+
+  createBook(dto: CreateBookDto, img: Express.Multer.File) {
+    console.log(dto);
+    console.log(img);
   }
 }
