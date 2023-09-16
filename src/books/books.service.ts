@@ -1,7 +1,14 @@
-import { Get, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Get,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { summarizeRatings } from 'src/utils/bookUtils/summarized-ratings';
 import { CreateBookDto } from './dto/create-book.dto';
+import * as sharp from 'sharp';
+import { unlink, writeFile, writeFileSync } from 'fs';
 
 @Injectable()
 export class BooksService {
@@ -84,8 +91,68 @@ export class BooksService {
     return book;
   }
 
-  createBook(dto: CreateBookDto, img: Express.Multer.File) {
-    console.log(dto);
-    console.log(img);
+  async createBook(dto: CreateBookDto, img: Express.Multer.File) {
+    if (!img) throw new BadRequestException('No image was uploaded');
+
+    const categoriesInput = dto.categories.split(',');
+
+    const categories = await this.prisma.category.findMany({
+      where: {
+        title: {
+          in: categoriesInput,
+        },
+      },
+    });
+
+    if (!categories)
+      throw new BadRequestException('Invalid list of categories');
+
+    const max: number = 999_999;
+    const min: number = 100_000;
+    const img_path: string =
+      'uploads/books-imgs/' +
+      Math.floor(Math.random() * (max - min + 1)) +
+      min +
+      dto.title +
+      '.jpeg';
+
+    const resizedImg: Buffer = await sharp(img.buffer)
+      .resize({
+        width: 250,
+        height: 400,
+        fit: 'cover',
+      })
+      .toFormat('jpeg')
+      .toBuffer();
+
+    try {
+      writeFileSync(img_path, resizedImg);
+    } catch (error) {
+      console.error('Error writing file: ', error);
+    }
+
+    const book = await this.prisma.book.create({
+      data: {
+        title: dto.title,
+        author: dto.author,
+        pages: parseInt(dto.pages),
+        year: parseInt(dto.year),
+        img_path: img_path,
+        language: dto.language,
+        description: dto.description,
+        categories: {
+          connect: categories,
+        },
+      },
+    });
+
+    if (!book) {
+      unlink(img_path, (err) => {
+        if (err) console.error('Error deleting img: ' + err);
+      });
+      throw new InternalServerErrorException('Book could not be created');
+    }
+
+    return book;
   }
 }

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumberString, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumberString, IsString } from 'class-validator';
 
 export class CreateBookDto {
   @IsString()
@@ -11,11 +11,11 @@ export class CreateBookDto {
 
   @IsNumberString()
   @IsNotEmpty()
-  year: number;
+  year: string;
 
   @IsNumberString()
   @IsNotEmpty()
-  pages: number;
+  pages: string;
 
   @IsString()
   @IsNotEmpty()
@@ -27,5 +27,5 @@ export class CreateBookDto {
 
   @IsString()
   @IsNotEmpty()
-  categories: string[];
+  categories: string;
 }
