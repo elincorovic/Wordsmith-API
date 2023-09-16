@@ -111,8 +111,7 @@ export class BooksService {
     const min: number = 100_000;
     const img_path: string =
       'uploads/books-imgs/' +
-      Math.floor(Math.random() * (max - min + 1)) +
-      min +
+      (Math.round(Math.random() * (max - min + 1)) + min) +
       dto.title +
       '.jpeg';
 
