@@ -12,13 +12,13 @@ datasource db {
 
 model Book {
   id          Int        @id @default(autoincrement())
+  slug        String
   title       String
   author      String
   year        Int
   pages       Int
   language    String
   description String
-  img_path    String     @unique
   categories  Category[]
   ratings     Rating[]
   // ISBN collection

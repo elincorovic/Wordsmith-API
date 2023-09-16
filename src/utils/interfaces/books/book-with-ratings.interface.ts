@@ -1,6 +1,6 @@
 export interface BookWithRatings {
   title: string;
   author: string;
-  img_path: string;
+  slug: string;
   ratings: { rating: number }[];
 }

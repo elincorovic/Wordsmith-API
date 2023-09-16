@@ -6,15 +6,14 @@ import {
   ParseIntPipe,
   Post,
   Query,
-  UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
-import { query } from 'express';
 import { CreateBookDto } from './dto/create-book.dto';
 import { IsAdmin, JwtGuard } from 'src/auth/guard';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 @Controller('books')
 export class BooksController {
@@ -32,11 +31,17 @@ export class BooksController {
 
   @UseGuards(JwtGuard, IsAdmin)
   @Post()
-  @UseInterceptors(FileInterceptor('img'))
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'img', maxCount: 1 },
+      { name: 'pdf', maxCount: 1 },
+    ]),
+  )
   createBook(
     @Body() dto: CreateBookDto,
-    @UploadedFile() img: Express.Multer.File,
+    @UploadedFiles()
+    files: { img: Express.Multer.File[]; pdf: Express.Multer.File[] },
   ) {
-    return this.booksService.createBook(dto, img);
+    return this.booksService.createBook(dto, files.img[0], files.pdf[0]);
   }
 }

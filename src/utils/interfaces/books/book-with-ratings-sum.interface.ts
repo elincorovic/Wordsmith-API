@@ -1,7 +1,7 @@
 export interface BookWithRatingsSum {
   title: string;
   author: string;
-  img_path: string;
+  slug: string;
   ratings: {
     count: number;
     avg: number;

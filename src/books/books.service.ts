@@ -9,6 +9,7 @@ import { summarizeRatings } from 'src/utils/bookUtils/summarized-ratings';
 import { CreateBookDto } from './dto/create-book.dto';
 import * as sharp from 'sharp';
 import { unlink, writeFile, writeFileSync } from 'fs';
+import voca, { tr } from 'voca';
 
 @Injectable()
 export class BooksService {
@@ -52,7 +53,7 @@ export class BooksService {
       select: {
         title: true,
         author: true,
-        img_path: true,
+        slug: true,
         ratings: {
           select: {
             rating: true,
@@ -91,12 +92,20 @@ export class BooksService {
     return book;
   }
 
-  async createBook(dto: CreateBookDto, img: Express.Multer.File) {
+  async createBook(
+    dto: CreateBookDto,
+    img: Express.Multer.File,
+    pdf: Express.Multer.File,
+  ) {
     const MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
 
     if (!img) throw new BadRequestException('No image was uploaded');
     if (!MIME_TYPES.includes(img.mimetype))
       throw new BadRequestException('Image must be of type: jpeg, jpg or png');
+
+    if (!pdf) throw new BadRequestException('No pdf was uploaded');
+    if (pdf.mimetype != 'application/pdf')
+      throw new BadRequestException('Pdf upload must be of type pdf');
 
     const categoriesInput = dto.categories.split(',');
 
@@ -113,11 +122,27 @@ export class BooksService {
 
     const max: number = 999_999;
     const min: number = 100_000;
-    const img_path: string =
-      'uploads/books-imgs/' +
-      (Math.round(Math.random() * (max - min + 1)) + min) +
-      dto.title +
-      '.jpeg';
+    const slug = voca.slugify(
+      Math.round(Math.random() * (max - min + 1)) + min + dto.title,
+    );
+
+    const book = await this.prisma.book.create({
+      data: {
+        title: dto.title,
+        slug: slug,
+        author: dto.author,
+        pages: parseInt(dto.pages),
+        year: parseInt(dto.year),
+        language: dto.language,
+        description: dto.description,
+        categories: {
+          connect: categories,
+        },
+      },
+    });
+
+    const imgPath: string = 'uploads/books-imgs/' + slug + '.jpeg';
+    const pdfPath: string = 'uploads/books-imgs/' + slug + '.pdf';
 
     const resizedImg: Buffer = await sharp(img.buffer)
       .resize({
@@ -129,31 +154,14 @@ export class BooksService {
       .toBuffer();
 
     try {
-      writeFileSync(img_path, resizedImg);
+      writeFile(imgPath, resizedImg, (err) => {
+        if (err) throw new Error('Could not write img file');
+      });
+      writeFile(pdfPath, resizedImg, (err) => {
+        if (err) throw new Error('Could not write pdf file');
+      });
     } catch (error) {
       console.error('Error writing file: ', error);
-    }
-
-    const book = await this.prisma.book.create({
-      data: {
-        title: dto.title,
-        author: dto.author,
-        pages: parseInt(dto.pages),
-        year: parseInt(dto.year),
-        img_path: img_path,
-        language: dto.language,
-        description: dto.description,
-        categories: {
-          connect: categories,
-        },
-      },
-    });
-
-    if (!book) {
-      unlink(img_path, (err) => {
-        if (err) console.error('Error deleting img: ' + err);
-      });
-      throw new InternalServerErrorException('Book could not be created');
     }
 
     return book;
