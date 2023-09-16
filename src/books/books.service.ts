@@ -92,7 +92,11 @@ export class BooksService {
   }
 
   async createBook(dto: CreateBookDto, img: Express.Multer.File) {
+    const MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
+
     if (!img) throw new BadRequestException('No image was uploaded');
+    if (!MIME_TYPES.includes(img.mimetype))
+      throw new BadRequestException('Image must be of type: jpeg, jpg or png');
 
     const categoriesInput = dto.categories.split(',');
 
