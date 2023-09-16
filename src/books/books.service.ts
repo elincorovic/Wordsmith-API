@@ -1,15 +1,10 @@
-import {
-  BadRequestException,
-  Get,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { summarizeRatings } from 'src/utils/bookUtils/summarized-ratings';
 import { CreateBookDto } from './dto/create-book.dto';
 import * as sharp from 'sharp';
-import { unlink, writeFile, writeFileSync } from 'fs';
-import voca, { tr } from 'voca';
+import { writeFile } from 'fs';
+import { slugify } from 'voca';
 
 @Injectable()
 export class BooksService {
@@ -122,7 +117,7 @@ export class BooksService {
 
     const max: number = 999_999;
     const min: number = 100_000;
-    const slug = voca.slugify(
+    const slug = slugify(
       Math.round(Math.random() * (max - min + 1)) + min + dto.title,
     );
 
@@ -142,7 +137,7 @@ export class BooksService {
     });
 
     const imgPath: string = 'uploads/books-imgs/' + slug + '.jpeg';
-    const pdfPath: string = 'uploads/books-imgs/' + slug + '.pdf';
+    const pdfPath: string = 'uploads/books-pdfs/' + slug + '.pdf';
 
     const resizedImg: Buffer = await sharp(img.buffer)
       .resize({
