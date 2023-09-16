@@ -24,9 +24,9 @@ export class BooksController {
     return this.booksService.getBooks(query);
   }
 
-  @Get(':bookId')
-  getBook(@Param('bookId', ParseIntPipe) bookId: number) {
-    return this.booksService.getBook(bookId);
+  @Get(':slug')
+  getBook(@Param('slug') slug: string) {
+    return this.booksService.getBook(slug);
   }
 
   @UseGuards(JwtGuard, IsAdmin)

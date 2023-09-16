@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import * as argon from 'argon2';
+import { slugify } from 'voca';
 
 const prisma = new PrismaClient();
 
@@ -51,12 +52,12 @@ async function main() {
   const book1 = await prisma.book.create({
     data: {
       title: 'The Great Gatsby',
+      slug: slugify('The Great Gatsby'),
       author: 'F. Scott Fitzgerald',
       year: 1925,
       pages: 180,
       language: 'English',
       description: 'A classic novel about the American Dream.',
-      img_path: 'gatsby.jpg',
       categories: {
         connect: [category1, category2],
       },
@@ -66,12 +67,12 @@ async function main() {
   const book2 = await prisma.book.create({
     data: {
       title: 'Sapiens: A Brief History of Humankind',
+      slug: slugify('Sapiens: A Brief History of Humankind'),
       author: 'Yuval Noah Harari',
       year: 2014,
       pages: 443,
       language: 'English',
       description: 'A thought-provoking exploration of human history.',
-      img_path: 'sapiens.jpg',
       categories: {
         connect: [category3, category4],
       },
@@ -81,12 +82,12 @@ async function main() {
   const book3 = await prisma.book.create({
     data: {
       title: 'To Kill a Mockingbird',
+      slug: slugify('To Kill a Mockingbird'),
       author: 'Harper Lee',
       year: 1960,
       pages: 281,
       language: 'English',
       description: 'A novel addressing racial injustice in the American South.',
-      img_path: 'mockingbird.jpg',
       categories: {
         connect: [category5, category6],
       },
@@ -96,12 +97,12 @@ async function main() {
   const book4 = await prisma.book.create({
     data: {
       title: '1984',
+      slug: slugify('1984'),
       author: 'George Orwell',
       year: 1949,
       pages: 328,
       language: 'English',
       description: 'A dystopian novel about a totalitarian regime.',
-      img_path: '1984.jpg',
       categories: {
         connect: [category2, category5, category6],
       },
@@ -111,12 +112,12 @@ async function main() {
   const book5 = await prisma.book.create({
     data: {
       title: 'Pride and Prejudice',
+      slug: slugify('Pride and Prejudice'),
       author: 'Jane Austen',
       year: 1813,
       pages: 279,
       language: 'English',
       description: 'A classic romance novel set in 19th-century England.',
-      img_path: 'pride_and_prejudice.jpg',
       categories: {
         connect: [category2, category3, category4],
       },

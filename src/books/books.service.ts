@@ -79,10 +79,10 @@ export class BooksService {
     return booksRatingsSummarized;
   }
 
-  async getBook(bookId: number) {
+  async getBook(slug: string) {
     const book = this.prisma.book.findUnique({
       where: {
-        id: bookId,
+        slug: slug,
       },
       include: {
         ratings: true,
