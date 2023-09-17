@@ -94,11 +94,11 @@ export class BooksService {
   ) {
     const MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
 
-    if (!img) throw new BadRequestException('No image was uploaded');
+    if (!img) throw new BadRequestException('No image file was uploaded');
     if (!MIME_TYPES.includes(img.mimetype))
       throw new BadRequestException('Image must be of type: jpeg, jpg or png');
 
-    if (!pdf) throw new BadRequestException('No pdf was uploaded');
+    if (!pdf) throw new BadRequestException('No pdf file was uploaded');
     if (pdf.mimetype != 'application/pdf')
       throw new BadRequestException('Pdf upload must be of type pdf');
 

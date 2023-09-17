@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -6,6 +7,7 @@ import {
   ParseIntPipe,
   Post,
   Query,
+  StreamableFile,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -14,6 +16,8 @@ import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { IsAdmin, JwtGuard } from 'src/auth/guard';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { createReadStream, existsSync } from 'fs';
+import { join } from 'path';
 
 @Controller('books')
 export class BooksController {
@@ -42,6 +46,17 @@ export class BooksController {
     @UploadedFiles()
     files: { img: Express.Multer.File[]; pdf: Express.Multer.File[] },
   ) {
+    if (!files.img) throw new BadRequestException('No image file was uploaded');
+    if (!files.pdf) throw new BadRequestException('No pdf file was uploaded');
     return this.booksService.createBook(dto, files.img[0], files.pdf[0]);
+  }
+
+  @Get('images/:filename')
+  getPdf(@Param('filename') filename: string) {
+    const filePath = join(process.cwd(), '/uploads/books-imgs/', filename);
+    if (!existsSync(filePath))
+      throw new BadRequestException('The requested file does not exist');
+    const file = createReadStream(filePath);
+    return new StreamableFile(file);
   }
 }

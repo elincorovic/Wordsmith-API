@@ -9,7 +9,6 @@ export class CategoriesService {
     const categories = this.prisma.category.findMany({
       select: {
         title: true,
-        img_path: true,
       },
     });
     return categories;
