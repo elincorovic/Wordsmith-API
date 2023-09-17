@@ -9,42 +9,36 @@ async function main() {
   const category1 = await prisma.category.create({
     data: {
       title: 'Fiction',
-      img_path: 'fiction.jpg',
     },
   });
 
   const category2 = await prisma.category.create({
     data: {
       title: 'Non-Fiction',
-      img_path: 'nonfiction.jpg',
     },
   });
 
   const category3 = await prisma.category.create({
     data: {
       title: 'Action',
-      img_path: 'action.jpg',
     },
   });
 
   const category4 = await prisma.category.create({
     data: {
       title: 'Biography',
-      img_path: 'biography.jpg',
     },
   });
 
   const category5 = await prisma.category.create({
     data: {
       title: 'Mystery',
-      img_path: 'mystery.jpg',
     },
   });
 
   const category6 = await prisma.category.create({
     data: {
       title: 'Science-Fiction',
-      img_path: 'science-fiction.jpg',
     },
   });
 
