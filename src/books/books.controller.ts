@@ -3,10 +3,12 @@ import {
   Body,
   Controller,
   Get,
+  Header,
   Param,
   ParseIntPipe,
   Post,
   Query,
+  Res,
   StreamableFile,
   UploadedFiles,
   UseGuards,
@@ -18,6 +20,7 @@ import { IsAdmin, JwtGuard } from 'src/auth/guard';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { createReadStream, existsSync } from 'fs';
 import { join } from 'path';
+import type { Response } from 'express';
 
 @Controller('books')
 export class BooksController {
@@ -52,11 +55,28 @@ export class BooksController {
   }
 
   @Get('images/:filename')
-  getPdf(@Param('filename') filename: string) {
+  @Header('Content-Type', 'image/jpeg')
+  getImage(@Param('filename') filename: string): StreamableFile {
     const filePath = join(process.cwd(), '/uploads/books-imgs/', filename);
     if (!existsSync(filePath))
       throw new BadRequestException('The requested file does not exist');
     const file = createReadStream(filePath);
+    return new StreamableFile(file);
+  }
+
+  @Get('pdfs/:filename')
+  getPdf(
+    @Param('filename') filename: string,
+    @Res({ passthrough: true }) res: Response,
+  ): StreamableFile {
+    const filePath = join(process.cwd(), '/uploads/books-pdfs/', filename);
+    if (!existsSync(filePath))
+      throw new BadRequestException('The requested file does not exist');
+    const file = createReadStream(filePath);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `inline; filename="${filename}"`,
+    });
     return new StreamableFile(file);
   }
 }

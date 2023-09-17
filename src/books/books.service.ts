@@ -152,7 +152,7 @@ export class BooksService {
       writeFile(imgPath, resizedImg, (err) => {
         if (err) throw new Error('Could not write img file');
       });
-      writeFile(pdfPath, resizedImg, (err) => {
+      writeFile(pdfPath, pdf.buffer, (err) => {
         if (err) throw new Error('Could not write pdf file');
       });
     } catch (error) {

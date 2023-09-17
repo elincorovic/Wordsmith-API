@@ -10,6 +10,7 @@ async function bootstrap() {
       whitelist: true, //strips out undefined elements
     }),
   );
+  app.enableCors({ origin: '*' });
   await app.listen(8080);
 }
 bootstrap();
