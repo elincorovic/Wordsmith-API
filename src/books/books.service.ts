@@ -191,13 +191,25 @@ export class BooksService {
     if (!categories)
       throw new BadRequestException('Invalid list of categories');
 
+    const oldBook = await this.getBook(slug);
+
+    if (!oldBook)
+      throw new BadRequestException('No book found with the given slug');
+
+    const max: number = 999_999;
+    const min: number = 100_000;
+    const newSlug =
+      dto.title != oldBook.title
+        ? slugify(Math.round(Math.random() * (max - min + 1)) + min + dto.title)
+        : slug;
+
     const book = await this.prisma.book.update({
       where: {
         slug: slug,
       },
       data: {
         title: dto.title,
-        slug: slug,
+        slug: newSlug,
         author: dto.author,
         pages: parseInt(dto.pages),
         year: parseInt(dto.year),
@@ -209,11 +221,10 @@ export class BooksService {
       },
     });
 
-    if (!book)
-      throw new BadRequestException('No book found with the given slug');
-
-    const imgPath: string = 'uploads/books-imgs/' + slug + '.jpeg';
-    const pdfPath: string = 'uploads/books-pdfs/' + slug + '.pdf';
+    const oldImgPath: string = 'uploads/books-imgs/' + slug + '.jpeg';
+    const oldPdfPath: string = 'uploads/books-pdfs/' + slug + '.pdf';
+    const newImgPath: string = 'uploads/books-imgs/' + book.slug + '.jpeg';
+    const newPdfPath: string = 'uploads/books-pdfs/' + book.slug + '.pdf';
 
     const resizedImg: Buffer = await sharp(img.buffer)
       .resize({
@@ -225,15 +236,15 @@ export class BooksService {
       .toBuffer();
 
     try {
-      unlinkSync(imgPath);
-      unlinkSync(pdfPath);
+      unlinkSync(oldImgPath);
+      unlinkSync(oldPdfPath);
     } catch (error) {
       console.log('Error deleting file: ', error);
     }
 
     try {
-      writeFileSync(imgPath, resizedImg);
-      writeFileSync(pdfPath, pdf.buffer);
+      writeFileSync(newImgPath, resizedImg);
+      writeFileSync(newPdfPath, pdf.buffer);
     } catch (error) {
       console.log('Error writing file: ', error);
     }
