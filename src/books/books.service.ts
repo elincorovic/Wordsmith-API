@@ -3,7 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { summarizeRatings } from 'src/utils/bookUtils/summarized-ratings';
 import { CreateBookDto } from './dto/create-book.dto';
 import * as sharp from 'sharp';
-import { writeFile } from 'fs';
+import { unlink, writeFile } from 'fs';
 import { slugify } from 'voca';
 
 @Injectable()
@@ -151,6 +151,88 @@ export class BooksService {
     try {
       writeFile(imgPath, resizedImg, (err) => {
         if (err) throw new Error('Could not write img file');
+      });
+      writeFile(pdfPath, pdf.buffer, (err) => {
+        if (err) throw new Error('Could not write pdf file');
+      });
+    } catch (error) {
+      console.error('Error writing file: ', error);
+    }
+
+    return book;
+  }
+
+  async updateBook(
+    dto: CreateBookDto,
+    img: Express.Multer.File,
+    pdf: Express.Multer.File,
+    slug: string,
+  ) {
+    const MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
+
+    if (!img) throw new BadRequestException('No image file was uploaded');
+    if (!MIME_TYPES.includes(img.mimetype))
+      throw new BadRequestException('Image must be of type: jpeg, jpg or png');
+
+    if (!pdf) throw new BadRequestException('No pdf file was uploaded');
+    if (pdf.mimetype != 'application/pdf')
+      throw new BadRequestException('Pdf upload must be of type pdf');
+
+    const categoriesInput = dto.categories.split(',');
+
+    const categories = await this.prisma.category.findMany({
+      where: {
+        title: {
+          in: categoriesInput,
+        },
+      },
+    });
+
+    if (!categories)
+      throw new BadRequestException('Invalid list of categories');
+
+    const book = await this.prisma.book.update({
+      where: {
+        slug: slug,
+      },
+      data: {
+        title: dto.title,
+        slug: slug,
+        author: dto.author,
+        pages: parseInt(dto.pages),
+        year: parseInt(dto.year),
+        language: dto.language,
+        description: dto.description,
+        categories: {
+          connect: categories,
+        },
+      },
+    });
+
+    if (!book)
+      throw new BadRequestException('No book found with the given slug');
+
+    const imgPath: string = 'uploads/books-imgs/' + slug + '.jpeg';
+    const pdfPath: string = 'uploads/books-pdfs/' + slug + '.pdf';
+
+    const resizedImg: Buffer = await sharp(img.buffer)
+      .resize({
+        width: 250,
+        height: 400,
+        fit: 'cover',
+      })
+      .toFormat('jpeg')
+      .toBuffer();
+
+    try {
+      unlink(imgPath, (err) => {
+        if (err) throw new Error('Could not delete old img file');
+      });
+      writeFile(imgPath, resizedImg, (err) => {
+        if (err) throw new Error('Could not write img file');
+      });
+      unlink(pdfPath, (err) => {
+        if (err) throw new Error('Could not delete old pdf file');
       });
       writeFile(pdfPath, pdf.buffer, (err) => {
         if (err) throw new Error('Could not write pdf file');

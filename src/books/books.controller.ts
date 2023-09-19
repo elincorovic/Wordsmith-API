@@ -6,6 +6,7 @@ import {
   Header,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
   Res,
@@ -52,6 +53,25 @@ export class BooksController {
     if (!files.img) throw new BadRequestException('No image file was uploaded');
     if (!files.pdf) throw new BadRequestException('No pdf file was uploaded');
     return this.booksService.createBook(dto, files.img[0], files.pdf[0]);
+  }
+
+  @UseGuards(JwtGuard, IsAdmin)
+  @Patch(':slug')
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'img', maxCount: 1 },
+      { name: 'pdf', maxCount: 1 },
+    ]),
+  )
+  updateBook(
+    @Body() dto: CreateBookDto,
+    @Param('slug') slug: string,
+    @UploadedFiles()
+    files: { img: Express.Multer.File[]; pdf: Express.Multer.File[] },
+  ) {
+    if (!files.img) throw new BadRequestException('No image file was uploaded');
+    if (!files.pdf) throw new BadRequestException('No pdf file was uploaded');
+    return this.booksService.updateBook(dto, files.img[0], files.pdf[0], slug);
   }
 
   @Get('images/:filename')
