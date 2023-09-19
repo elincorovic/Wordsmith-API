@@ -3,7 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { summarizeRatings } from 'src/utils/bookUtils/summarized-ratings';
 import { CreateBookDto } from './dto/create-book.dto';
 import * as sharp from 'sharp';
-import { unlink, writeFile } from 'fs';
+import { unlink, unlinkSync, writeFile, writeFileSync } from 'fs';
 import { slugify } from 'voca';
 
 @Injectable()
@@ -225,20 +225,17 @@ export class BooksService {
       .toBuffer();
 
     try {
-      unlink(imgPath, (err) => {
-        if (err) throw new Error('Could not delete old img file');
-      });
-      writeFile(imgPath, resizedImg, (err) => {
-        if (err) throw new Error('Could not write img file');
-      });
-      unlink(pdfPath, (err) => {
-        if (err) throw new Error('Could not delete old pdf file');
-      });
-      writeFile(pdfPath, pdf.buffer, (err) => {
-        if (err) throw new Error('Could not write pdf file');
-      });
+      unlinkSync(imgPath);
+      unlinkSync(pdfPath);
     } catch (error) {
-      console.error('Error writing file: ', error);
+      console.log('Error deleting file: ', error);
+    }
+
+    try {
+      writeFileSync(imgPath, resizedImg);
+      writeFileSync(pdfPath, pdf.buffer);
+    } catch (error) {
+      console.log('Error writing file: ', error);
     }
 
     return book;
