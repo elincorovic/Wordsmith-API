@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Header,
   Param,
@@ -98,5 +99,11 @@ export class BooksController {
       'Content-Disposition': `inline; filename="${filename}"`,
     });
     return new StreamableFile(file);
+  }
+
+  @UseGuards(JwtGuard, IsAdmin)
+  @Delete(':slug')
+  deleteBook(@Param('slug') slug: string) {
+    return this.booksService.deleteBook(slug);
   }
 }

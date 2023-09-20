@@ -4,7 +4,7 @@ import { summarizeRatings } from 'src/utils/bookUtils/summarized-ratings';
 import { CreateBookDto } from './dto/create-book.dto';
 import * as sharp from 'sharp';
 import { unlink, unlinkSync, writeFile, writeFileSync } from 'fs';
-import { slugify } from 'voca';
+import { slugify, tr } from 'voca';
 import { generateSlug } from 'src/utils/bookUtils/generate-slug';
 
 @Injectable()
@@ -242,5 +242,25 @@ export class BooksService {
     }
 
     return book;
+  }
+
+  async deleteBook(slug: string) {
+    const book = await this.prisma.book.findUnique({
+      where: {
+        slug: slug,
+      },
+      select: {
+        title: true,
+        slug: true,
+      },
+    });
+    if (!book)
+      throw new BadRequestException('No book found with the given slug');
+    const deletedBook = await this.prisma.book.delete({
+      where: {
+        slug: slug,
+      },
+    });
+    return deletedBook;
   }
 }

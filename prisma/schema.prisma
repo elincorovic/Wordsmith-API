@@ -50,9 +50,9 @@ model User {
 model Rating {
   id        Int      @id @default(autoincrement())
   rating    Int
-  user      User     @relation(fields: [username], references: [username])
+  user      User     @relation(fields: [username], references: [username], onDelete: Cascade)
   username  String
-  book      Book     @relation(fields: [bookId], references: [id])
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
   bookId    Int
   comment   String?
   createdAt DateTime @default(now())
