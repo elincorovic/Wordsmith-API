@@ -4,7 +4,6 @@ import { summarizeRatings } from 'src/utils/bookUtils/summarized-ratings';
 import { CreateBookDto } from './dto/create-book.dto';
 import * as sharp from 'sharp';
 import { unlink, unlinkSync, writeFile, writeFileSync } from 'fs';
-import { slugify, tr } from 'voca';
 import { generateSlug } from 'src/utils/bookUtils/generate-slug';
 
 @Injectable()
@@ -177,6 +176,7 @@ export class BooksService {
 
     const categoriesInput = dto.categories.split(',');
 
+    //check if the list of categories is valid
     const categories = await this.prisma.category.findMany({
       where: {
         title: {
