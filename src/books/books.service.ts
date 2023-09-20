@@ -5,6 +5,7 @@ import { CreateBookDto } from './dto/create-book.dto';
 import * as sharp from 'sharp';
 import { unlink, unlinkSync, writeFile, writeFileSync } from 'fs';
 import { slugify } from 'voca';
+import { generateSlug } from 'src/utils/bookUtils/generate-slug';
 
 @Injectable()
 export class BooksService {
@@ -115,11 +116,7 @@ export class BooksService {
     if (!categories)
       throw new BadRequestException('Invalid list of categories');
 
-    const max: number = 999_999;
-    const min: number = 100_000;
-    const slug = slugify(
-      Math.round(Math.random() * (max - min + 1)) + min + dto.title,
-    );
+    const slug = generateSlug(dto.title);
 
     const book = await this.prisma.book.create({
       data: {
@@ -196,12 +193,7 @@ export class BooksService {
     if (!oldBook)
       throw new BadRequestException('No book found with the given slug');
 
-    const max: number = 999_999;
-    const min: number = 100_000;
-    const newSlug =
-      dto.title != oldBook.title
-        ? slugify(Math.round(Math.random() * (max - min + 1)) + min + dto.title)
-        : slug;
+    const newSlug = dto.title != oldBook.title ? generateSlug(dto.title) : slug;
 
     const book = await this.prisma.book.update({
       where: {
