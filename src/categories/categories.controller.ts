@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  Header,
   Param,
   Post,
   StreamableFile,
@@ -38,6 +39,7 @@ export class CategoriesController {
   }
 
   @Get('images/:filename')
+  @Header('Content-Type', 'image/jpeg')
   getImage(@Param('filename') filename: string): StreamableFile {
     const filePath = join(process.cwd(), '/uploads/categories-imgs/', filename);
     if (!existsSync(filePath))
