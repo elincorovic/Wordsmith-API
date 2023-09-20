@@ -3,7 +3,8 @@ import { BookWithRatingsSum } from '../interfaces/books/book-with-ratings-sum.in
 
 export function summarizeRatings(
   books: BookWithRatings[],
-): BookWithRatingsSum[] {
+): BookWithRatingsSum[] | null {
+  if (!books) return null;
   return books.map((book) => {
     const count = book.ratings.length;
     const sum = book.ratings.reduce((sum, rating) => sum + rating.rating, 0);
