@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCategoryDto } from './dtos/create-category.dto';
 import * as sharp from 'sharp';
 import { writeFileSync } from 'fs';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CategoriesService {
@@ -18,31 +19,41 @@ export class CategoriesService {
   }
 
   async createCategory(dto: CreateCategoryDto, img: Express.Multer.File) {
-    console.log(dto);
-    const category = await this.prisma.category.create({
-      data: {
-        title: dto.title,
-      },
-    });
-
-    const imgPath: string =
-      'uploads/categories-imgs/' + category.title + '.jpeg';
-
-    const resizedImg: Buffer = await sharp(img.buffer)
-      .resize({
-        width: 250,
-        height: 100,
-        fit: 'cover',
-      })
-      .toFormat('jpeg')
-      .toBuffer();
-
     try {
-      writeFileSync(imgPath, resizedImg);
-    } catch (error) {
-      console.log('Error writing file: ', error);
-    }
+      const category = await this.prisma.category.create({
+        data: {
+          title: dto.title,
+        },
+      });
 
-    return category;
+      const imgPath: string =
+        'uploads/categories-imgs/' + category.title + '.jpeg';
+
+      try {
+        const resizedImg: Buffer = await sharp(img.buffer)
+          .resize({
+            width: 250,
+            height: 100,
+            fit: 'cover',
+          })
+          .toFormat('jpeg')
+          .toBuffer();
+
+        writeFileSync(imgPath, resizedImg);
+      } catch (error) {
+        console.log('Error writing file: ', error);
+      }
+
+      return category;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          console.log(error);
+          if (error.meta.target[0] === 'title')
+            throw new ForbiddenException('This category already exists');
+        }
+      }
+      throw error;
+    }
   }
 }
