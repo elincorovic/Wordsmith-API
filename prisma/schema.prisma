@@ -28,6 +28,7 @@ model Book {
 
 model Category {
   id        Int      @id @default(autoincrement())
+  slug      String   @unique
   title     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

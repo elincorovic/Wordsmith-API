@@ -13,6 +13,8 @@ import { unlink, unlinkSync, writeFile, writeFileSync } from 'fs';
 import { generateSlug } from 'src/utils/bookUtils/generate-slug';
 import { buildFilter } from 'src/utils/bookUtils/filters/build-filter';
 import { filterRatings } from 'src/utils/bookUtils/filters/filter-ratings';
+import { validateImg } from 'src/utils/fileValidation/validate-img';
+import { validatePdf } from 'src/utils/fileValidation/validate-pdf';
 
 @Injectable()
 export class BooksService {
@@ -97,15 +99,8 @@ export class BooksService {
     img: Express.Multer.File,
     pdf: Express.Multer.File,
   ) {
-    const MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
-
-    if (!img) throw new BadRequestException('No image file was uploaded');
-    if (!MIME_TYPES.includes(img.mimetype))
-      throw new BadRequestException('Image must be of type: jpeg, jpg or png');
-
-    if (!pdf) throw new BadRequestException('No pdf file was uploaded');
-    if (pdf.mimetype != 'application/pdf')
-      throw new BadRequestException('Pdf upload must be of type pdf');
+    validateImg(img);
+    validatePdf(pdf);
 
     const categoriesInput = dto.categories.split(',');
 

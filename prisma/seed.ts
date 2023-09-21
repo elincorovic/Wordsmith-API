@@ -8,36 +8,42 @@ async function main() {
   // Create Categories
   const category1 = await prisma.category.create({
     data: {
+      slug: slugify('Fiction'),
       title: 'Fiction',
     },
   });
 
   const category2 = await prisma.category.create({
     data: {
+      slug: slugify('Non-Fiction'),
       title: 'Non-Fiction',
     },
   });
 
   const category3 = await prisma.category.create({
     data: {
+      slug: slugify('Action'),
       title: 'Action',
     },
   });
 
   const category4 = await prisma.category.create({
     data: {
+      slug: slugify('Biography'),
       title: 'Biography',
     },
   });
 
   const category5 = await prisma.category.create({
     data: {
+      slug: slugify('Mystery'),
       title: 'Mystery',
     },
   });
 
   const category6 = await prisma.category.create({
     data: {
+      slug: slugify('Science-Fiction'),
       title: 'Science-Fiction',
     },
   });

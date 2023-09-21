@@ -6,6 +6,7 @@ import {
   Get,
   Header,
   Param,
+  Patch,
   Post,
   StreamableFile,
   UploadedFile,
@@ -50,8 +51,19 @@ export class CategoriesController {
   }
 
   @UseGuards(JwtGuard, IsAdmin)
-  @Delete(':title')
-  deleteCategory(@Param('title') title: string) {
-    return this.categoriesService.deleteCategory(title);
+  @Patch(':slug')
+  @UseInterceptors(FileInterceptor('img'))
+  updateCategory(
+    @Body() dto: CreateCategoryDto,
+    @Param('slug') slug: string,
+    @UploadedFile() img: Express.Multer.File,
+  ) {
+    return this.categoriesService.updateCategory(dto, img, slug);
+  }
+
+  @UseGuards(JwtGuard, IsAdmin)
+  @Delete(':slug')
+  deleteCategory(@Param('slug') slug: string) {
+    return this.categoriesService.deleteCategory(slug);
   }
 }
