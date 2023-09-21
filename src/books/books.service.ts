@@ -106,13 +106,13 @@ export class BooksService {
 
     const categories = await this.prisma.category.findMany({
       where: {
-        title: {
+        slug: {
           in: categoriesInput,
         },
       },
     });
 
-    if (!categories)
+    if (!categories || categories.length == 0)
       throw new BadRequestException('Invalid list of categories');
 
     const slug = generateBookSlug(dto.title);
