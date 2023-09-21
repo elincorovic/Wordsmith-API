@@ -10,7 +10,7 @@ import { summarizeRatings } from 'src/utils/bookUtils/summarize-ratings';
 import { CreateBookDto } from './dto/create-book.dto';
 import * as sharp from 'sharp';
 import { unlinkSync, writeFile, writeFileSync } from 'fs';
-import { generateSlug } from 'src/utils/bookUtils/generate-slug';
+import { generateBookSlug } from 'src/utils/slugGenerators/generate-book-slug';
 import { buildFilter } from 'src/utils/bookUtils/filters/build-filter';
 import { filterRatings } from 'src/utils/bookUtils/filters/filter-ratings';
 import { validateImg } from 'src/utils/fileValidation/validate-img';
@@ -115,7 +115,7 @@ export class BooksService {
     if (!categories)
       throw new BadRequestException('Invalid list of categories');
 
-    const slug = generateSlug(dto.title);
+    const slug = generateBookSlug(dto.title);
 
     const book = await this.prisma.book.create({
       data: {
@@ -193,7 +193,8 @@ export class BooksService {
     if (!oldBook)
       throw new BadRequestException('No book found with the given slug');
 
-    const newSlug = dto.title != oldBook.title ? generateSlug(dto.title) : slug;
+    const newSlug =
+      dto.title != oldBook.title ? generateBookSlug(dto.title) : slug;
 
     const book = await this.prisma.book.update({
       where: {

@@ -10,7 +10,7 @@ import { unlinkSync, writeFileSync } from 'fs';
 import { Prisma } from '@prisma/client';
 import { slugify } from 'voca';
 import { validateImg } from 'src/utils/fileValidation/validate-img';
-import { generateSlug } from 'src/utils/bookUtils/generate-slug';
+import { generateCategorySlug } from 'src/utils/slugGenerators/generate-category-slug';
 
 @Injectable()
 export class CategoriesService {
@@ -30,9 +30,11 @@ export class CategoriesService {
     try {
       validateImg(img);
 
+      const slug = generateCategorySlug(dto.title);
+
       const category = await this.prisma.category.create({
         data: {
-          slug: slugify(dto.title),
+          slug: slug,
           title: dto.title,
         },
       });
@@ -113,7 +115,7 @@ export class CategoriesService {
       throw new BadRequestException('No category found with this slug');
 
     const newSlug =
-      dto.title != oldCategory.title ? generateSlug(dto.title) : slug;
+      dto.title != oldCategory.title ? generateCategorySlug(dto.title) : slug;
 
     const category = await this.prisma.category.update({
       where: {
