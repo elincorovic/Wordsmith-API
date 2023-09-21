@@ -261,6 +261,17 @@ export class BooksService {
         slug: true,
       },
     });
+
+    const imgPath: string = 'uploads/books-imgs/' + slug + '.jpeg';
+    const pdfPath: string = 'uploads/books-pdfs/' + slug + '.pdf';
+
+    try {
+      unlinkSync(imgPath);
+      unlinkSync(pdfPath);
+    } catch (error) {
+      console.log('Error deleting file: ', error);
+    }
+
     return deletedBook;
   }
 }
