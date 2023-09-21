@@ -7,7 +7,7 @@ export function buildFilter(
   if (category) {
     filterObj.categories = {
       some: {
-        title: {
+        slug: {
           in: category,
         },
       },

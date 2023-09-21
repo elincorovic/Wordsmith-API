@@ -9,7 +9,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { summarizeRatings } from 'src/utils/bookUtils/summarize-ratings';
 import { CreateBookDto } from './dto/create-book.dto';
 import * as sharp from 'sharp';
-import { unlink, unlinkSync, writeFile, writeFileSync } from 'fs';
+import { unlinkSync, writeFile, writeFileSync } from 'fs';
 import { generateSlug } from 'src/utils/bookUtils/generate-slug';
 import { buildFilter } from 'src/utils/bookUtils/filters/build-filter';
 import { filterRatings } from 'src/utils/bookUtils/filters/filter-ratings';
