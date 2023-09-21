@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Header,
   Param,
@@ -46,5 +47,11 @@ export class CategoriesController {
       throw new BadRequestException('The requested file does not exist');
     const file = createReadStream(filePath);
     return new StreamableFile(file);
+  }
+
+  @UseGuards(JwtGuard, IsAdmin)
+  @Delete(':title')
+  deleteCategory(@Param('title') title: string) {
+    return this.categoriesService.deleteCategory(title);
   }
 }

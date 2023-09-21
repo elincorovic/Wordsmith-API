@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCategoryDto } from './dtos/create-category.dto';
 import * as sharp from 'sharp';
@@ -55,5 +59,24 @@ export class CategoriesService {
       }
       throw error;
     }
+  }
+
+  async deleteCategory(title: string) {
+    const category = await this.prisma.category.findUnique({
+      where: {
+        title: title,
+      },
+    });
+    if (!category)
+      throw new BadRequestException('No category found with this title');
+    const deletedCategory = await this.prisma.category.delete({
+      where: {
+        title: title,
+      },
+      select: {
+        title: true,
+      },
+    });
+    return deletedCategory;
   }
 }

@@ -77,14 +77,17 @@ export class BooksService {
   }
 
   async getBook(slug: string) {
-    const book = this.prisma.book.findUnique({
+    const book = await this.prisma.book.findUnique({
       where: {
         slug: slug,
       },
       include: {
         ratings: true,
+        categories: true,
       },
     });
+
+    if (!book) throw new BadRequestException('No book with this slug');
 
     return book;
   }
@@ -251,16 +254,16 @@ export class BooksService {
       where: {
         slug: slug,
       },
-      select: {
-        title: true,
-        slug: true,
-      },
     });
     if (!book)
       throw new BadRequestException('No book found with the given slug');
     const deletedBook = await this.prisma.book.delete({
       where: {
         slug: slug,
+      },
+      select: {
+        title: true,
+        slug: true,
       },
     });
     return deletedBook;
