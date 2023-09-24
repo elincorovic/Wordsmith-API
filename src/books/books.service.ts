@@ -202,7 +202,7 @@ export class BooksService {
         language: dto.language,
         description: dto.description,
         categories: {
-          connect: categories,
+          set: categories,
         },
       },
     });
