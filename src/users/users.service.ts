@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateUserDto } from './dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -6,6 +10,7 @@ import * as argon from 'argon2';
 import { validateImg } from 'src/utils/fileValidation/validate-img';
 import { existsSync, writeFile, writeFileSync } from 'fs';
 import * as sharp from 'sharp';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class UsersService {
@@ -70,5 +75,24 @@ export class UsersService {
     return {
       success: true,
     };
+  }
+
+  async deleteMe(username: string) {
+    try {
+      const user = await this.prisma.user.delete({
+        where: {
+          username: username,
+        },
+      });
+
+      return { success: true, username: user.username };
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2001') {
+          throw new BadRequestException('User not found');
+        }
+      }
+      throw error;
+    }
   }
 }

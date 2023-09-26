@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Header,
   Param,
@@ -62,5 +63,11 @@ export class UsersController {
       throw new BadRequestException('The requested file does not exist');
     const file = createReadStream(filePath);
     return new StreamableFile(file);
+  }
+
+  @UseGuards(JwtGuard)
+  @Delete('me')
+  deleteMe(@GetUser('username') username: string) {
+    return this.usersService.deleteMe(username);
   }
 }
