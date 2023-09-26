@@ -147,7 +147,7 @@ async function main() {
     data: {
       rating: 5,
       username: user1.username,
-      bookId: book1.id,
+      bookSlug: book1.slug,
     },
   });
 
@@ -155,7 +155,7 @@ async function main() {
     data: {
       rating: 2,
       username: user2.username,
-      bookId: book2.id,
+      bookSlug: book2.slug,
     },
   });
 
@@ -163,7 +163,7 @@ async function main() {
     data: {
       rating: 3,
       username: user2.username,
-      bookId: book3.id,
+      bookSlug: book3.slug,
     },
   });
 
@@ -171,7 +171,7 @@ async function main() {
     data: {
       rating: 4,
       username: user2.username,
-      bookId: book4.id,
+      bookSlug: book4.slug,
     },
   });
 
@@ -179,7 +179,7 @@ async function main() {
     data: {
       rating: 1,
       username: user2.username,
-      bookId: book5.id,
+      bookSlug: book5.slug,
     },
   });
 
@@ -187,7 +187,7 @@ async function main() {
     data: {
       rating: 2,
       username: user2.username,
-      bookId: book1.id,
+      bookSlug: book1.slug,
     },
   });
 
