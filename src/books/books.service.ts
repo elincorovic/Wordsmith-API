@@ -34,11 +34,13 @@ export class BooksService {
 
       const sortBy = query.sortBy;
 
+      const search = query.search;
+
       //* validating numeric filter options
       validateFilters(fromYear, toYear, fromRating, toRating);
 
       //* building the prisma filter obj
-      const filterObj = buildFilter(category, fromYear, toYear);
+      const filterObj = buildFilter(category, fromYear, toYear, search);
 
       const books = await this.prisma.book.findMany({
         where: filterObj,
@@ -72,6 +74,7 @@ export class BooksService {
 
       return sortedBooks;
     } catch (error) {
+      console.log(error);
       if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException('Error retreiving books');
     }
