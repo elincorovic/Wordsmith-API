@@ -7,6 +7,7 @@ import {
   Header,
   Param,
   Patch,
+  Post,
   Req,
   StreamableFile,
   UploadedFile,
@@ -19,7 +20,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { JwtGuard } from 'src/auth/guard';
 import { GetUser } from 'src/utils/decorators';
 import { User } from '@prisma/client';
-import { UpdateUserDto } from './dto';
+import { AddFavouriteDto, UpdateUserDto } from './dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { join } from 'path';
@@ -75,5 +76,14 @@ export class UsersController {
   @Get('me/favourites')
   getFavourites(@GetUser('username') username: string) {
     return this.usersService.getFavourites(username);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('me/favourites')
+  addFavourite(
+    @GetUser('username') username: string,
+    @Body() dto: AddFavouriteDto,
+  ) {
+    return this.usersService.addFavourite(username, dto);
   }
 }

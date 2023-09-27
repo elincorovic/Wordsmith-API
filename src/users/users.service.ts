@@ -4,7 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UpdateUserDto } from './dto';
+import { AddFavouriteDto, UpdateUserDto } from './dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import * as argon from 'argon2';
 import { validateImg } from 'src/utils/fileValidation/validate-img';
@@ -108,5 +108,22 @@ export class UsersService {
     });
 
     return favourites;
+  }
+
+  async addFavourite(username: string, dto: AddFavouriteDto) {
+    const user = await this.prisma.user.update({
+      where: {
+        username: username,
+      },
+      data: {
+        favourites: {
+          connect: {
+            slug: dto.slug,
+          },
+        },
+      },
+    });
+
+    return { success: true };
   }
 }
