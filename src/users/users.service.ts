@@ -77,11 +77,11 @@ export class UsersService {
     };
   }
 
-  async deleteMe(username: string) {
+  async deleteMe(userId: number) {
     try {
       const user = await this.prisma.user.delete({
         where: {
-          username: username,
+          id: userId,
         },
       });
 
@@ -96,12 +96,12 @@ export class UsersService {
     }
   }
 
-  async getFavourites(username: string) {
+  async getFavourites(userId: number) {
     const favourites = await this.prisma.book.findMany({
       where: {
         usersFavourite: {
           some: {
-            username: username,
+            id: userId,
           },
         },
       },
@@ -110,10 +110,10 @@ export class UsersService {
     return favourites;
   }
 
-  async addFavourite(username: string, dto: AddFavouriteDto) {
+  async addFavourite(userId: number, dto: AddFavouriteDto) {
     const user = await this.prisma.user.update({
       where: {
-        username: username,
+        id: userId,
       },
       data: {
         favourites: {
@@ -127,10 +127,10 @@ export class UsersService {
     return { success: true };
   }
 
-  async removeFavourite(username: string, slug: string) {
+  async removeFavourite(userId: number, slug: string) {
     const user = await this.prisma.user.update({
       where: {
-        username: username,
+        id: userId,
       },
       data: {
         favourites: {

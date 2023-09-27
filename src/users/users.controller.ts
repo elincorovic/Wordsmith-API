@@ -68,31 +68,25 @@ export class UsersController {
 
   @UseGuards(JwtGuard)
   @Delete('me')
-  deleteMe(@GetUser('username') username: string) {
-    return this.usersService.deleteMe(username);
+  deleteMe(@GetUser('id') userId: number) {
+    return this.usersService.deleteMe(userId);
   }
 
   @UseGuards(JwtGuard)
   @Get('me/favourites')
-  getFavourites(@GetUser('username') username: string) {
-    return this.usersService.getFavourites(username);
+  getFavourites(@GetUser('id') userId: number) {
+    return this.usersService.getFavourites(userId);
   }
 
   @UseGuards(JwtGuard)
   @Post('me/favourites')
-  addFavourite(
-    @GetUser('username') username: string,
-    @Body() dto: AddFavouriteDto,
-  ) {
-    return this.usersService.addFavourite(username, dto);
+  addFavourite(@GetUser('id') userId: number, @Body() dto: AddFavouriteDto) {
+    return this.usersService.addFavourite(userId, dto);
   }
 
   @UseGuards(JwtGuard)
   @Delete('me/favourites/:slug')
-  removeFavourite(
-    @GetUser('username') username: string,
-    @Param('slug') slug: string,
-  ) {
-    return this.usersService.removeFavourite(username, slug);
+  removeFavourite(@GetUser('id') userId: number, @Param('slug') slug: string) {
+    return this.usersService.removeFavourite(userId, slug);
   }
 }
