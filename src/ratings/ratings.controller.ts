@@ -10,7 +10,9 @@ import { RatingsService } from './ratings.service';
 import { JwtGuard } from 'src/auth/guard';
 import { CreateRatingDto } from './dto';
 import { GetUser } from 'src/utils/decorators';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('ratings')
 @UseGuards(JwtGuard)
 @Controller('ratings')
 export class RatingsController {
