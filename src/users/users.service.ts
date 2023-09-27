@@ -91,6 +91,9 @@ export class UsersService {
         if (error.code === 'P2001') {
           throw new BadRequestException('User not found');
         }
+        if (error.code === 'P2025') {
+          throw new BadRequestException('User not found');
+        }
       }
       throw error;
     }

@@ -15,6 +15,8 @@ import { buildFilter } from 'src/utils/bookUtils/filters/build-filter';
 import { filterRatings } from 'src/utils/bookUtils/filters/filter-ratings';
 import { validateImg } from 'src/utils/fileValidation/validate-img';
 import { validatePdf } from 'src/utils/fileValidation/validate-pdf';
+import { validateFilters } from 'src/utils/bookUtils/filters/validate-filter';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class BooksService {
@@ -22,28 +24,17 @@ export class BooksService {
 
   async getBooks(query: any) {
     try {
+      //* converting filter options to proper types
       const category = query.category ? query.category.split(',') : null;
       const fromYear = query.fromYear ? parseInt(query.fromYear) : null;
       const toYear = query.toYear ? parseInt(query.toYear) : null;
       const fromRating = query.fromRating ? parseInt(query.fromRating) : null;
       const toRating = query.toRating ? parseInt(query.toRating) : null;
 
-      if (isNaN(fromYear)) {
-        throw new BadRequestException('Invalid fromYear parameter');
-      }
+      //* validating numeric filter options
+      validateFilters(fromYear, toYear, fromRating, toRating);
 
-      if (isNaN(toYear)) {
-        throw new BadRequestException('Invalid toYear parameter');
-      }
-
-      if (isNaN(fromRating)) {
-        throw new BadRequestException('Invalid fromRating parameter');
-      }
-
-      if (isNaN(toRating)) {
-        throw new BadRequestException('Invalid toRating parameter');
-      }
-
+      //* building the prisma filter obj
       const filterObj = buildFilter(category, fromYear, toYear);
 
       const books = await this.prisma.book.findMany({
@@ -60,8 +51,10 @@ export class BooksService {
         },
       });
 
+      //* summarizing ratings to average rating and ratings count
       let booksRatingsSummarized = summarizeRatings(books);
 
+      //* filtering books by rating filter options
       let booksFilteredByRating = filterRatings(
         booksRatingsSummarized,
         fromRating,
@@ -99,63 +92,76 @@ export class BooksService {
     img: Express.Multer.File,
     pdf: Express.Multer.File,
   ) {
-    validateImg(img);
-    validatePdf(pdf);
-
-    const categoriesInput = dto.categories.split(',');
-
-    const categories = await this.prisma.category.findMany({
-      where: {
-        slug: {
-          in: categoriesInput,
-        },
-      },
-    });
-
-    if (!categories || categories.length == 0)
-      throw new BadRequestException('Invalid list of categories');
-
-    const slug = generateBookSlug(dto.title);
-
-    const book = await this.prisma.book.create({
-      data: {
-        title: dto.title,
-        slug: slug,
-        author: dto.author,
-        pages: parseInt(dto.pages),
-        year: parseInt(dto.year),
-        language: dto.language,
-        description: dto.description,
-        categories: {
-          connect: categories,
-        },
-      },
-    });
-
-    const imgPath: string = 'uploads/books-imgs/' + slug + '.jpeg';
-    const pdfPath: string = 'uploads/books-pdfs/' + slug + '.pdf';
-
-    const resizedImg: Buffer = await sharp(img.buffer)
-      .resize({
-        width: 250,
-        height: 400,
-        fit: 'cover',
-      })
-      .toFormat('jpeg')
-      .toBuffer();
-
     try {
-      writeFile(imgPath, resizedImg, (err) => {
-        if (err) throw new Error('Could not write img file');
-      });
-      writeFile(pdfPath, pdf.buffer, (err) => {
-        if (err) throw new Error('Could not write pdf file');
-      });
-    } catch (error) {
-      console.error('Error writing file: ', error);
-    }
+      //* validating files and checking mime types
+      validateImg(img);
+      validatePdf(pdf);
 
-    return book;
+      const categoriesInput = dto.categories.split(',');
+
+      const categories = await this.prisma.category.findMany({
+        where: {
+          slug: {
+            in: categoriesInput,
+          },
+        },
+      });
+
+      if (!categories || categories.length == 0)
+        throw new BadRequestException('Invalid list of categories');
+
+      //*generating a book slug (number + title)
+      const slug = generateBookSlug(dto.title);
+
+      const book = await this.prisma.book.create({
+        data: {
+          title: dto.title,
+          slug: slug,
+          author: dto.author,
+          pages: parseInt(dto.pages),
+          year: parseInt(dto.year),
+          language: dto.language,
+          description: dto.description,
+          categories: {
+            connect: categories,
+          },
+        },
+      });
+
+      const imgPath: string = 'uploads/books-imgs/' + slug + '.jpeg';
+      const pdfPath: string = 'uploads/books-pdfs/' + slug + '.pdf';
+
+      //* resizing image to proper format
+      const resizedImg: Buffer = await sharp(img.buffer)
+        .resize({
+          width: 250,
+          height: 400,
+          fit: 'cover',
+        })
+        .toFormat('jpeg')
+        .toBuffer();
+
+      //* writing files to fs
+      try {
+        writeFile(imgPath, resizedImg, (err) => {
+          if (err) throw new Error('Could not write img file');
+        });
+        writeFile(pdfPath, pdf.buffer, (err) => {
+          if (err) throw new Error('Could not write pdf file');
+        });
+      } catch (error) {
+        console.error('Error writing file: ', error);
+      }
+
+      return book;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new BadRequestException('A book with this slug already exists');
+        }
+      }
+      throw error;
+    }
   }
 
   async updateBook(
@@ -164,108 +170,128 @@ export class BooksService {
     pdf: Express.Multer.File,
     slug: string,
   ) {
-    validateImg(img);
-    validatePdf(pdf);
-
-    const categoriesInput = dto.categories.split(',');
-
-    //check if the list of categories is valid
-    const categories = await this.prisma.category.findMany({
-      where: {
-        slug: {
-          in: categoriesInput,
-        },
-      },
-    });
-
-    if (!categories)
-      throw new BadRequestException('Invalid list of categories');
-
-    const oldBook = await this.getBook(slug);
-
-    if (!oldBook)
-      throw new BadRequestException('No book found with the given slug');
-
-    const newSlug =
-      dto.title != oldBook.title ? generateBookSlug(dto.title) : slug;
-
-    const book = await this.prisma.book.update({
-      where: {
-        slug: slug,
-      },
-      data: {
-        title: dto.title,
-        slug: newSlug,
-        author: dto.author,
-        pages: parseInt(dto.pages),
-        year: parseInt(dto.year),
-        language: dto.language,
-        description: dto.description,
-        categories: {
-          set: categories,
-        },
-      },
-    });
-
-    const oldImgPath: string = 'uploads/books-imgs/' + slug + '.jpeg';
-    const oldPdfPath: string = 'uploads/books-pdfs/' + slug + '.pdf';
-    const newImgPath: string = 'uploads/books-imgs/' + book.slug + '.jpeg';
-    const newPdfPath: string = 'uploads/books-pdfs/' + book.slug + '.pdf';
-
-    const resizedImg: Buffer = await sharp(img.buffer)
-      .resize({
-        width: 250,
-        height: 400,
-        fit: 'cover',
-      })
-      .toFormat('jpeg')
-      .toBuffer();
-
     try {
-      unlinkSync(oldImgPath);
-      unlinkSync(oldPdfPath);
-    } catch (error) {
-      console.log('Error deleting file: ', error);
-    }
+      //* validating files and checking mime types
+      validateImg(img);
+      validatePdf(pdf);
 
-    try {
-      writeFileSync(newImgPath, resizedImg);
-      writeFileSync(newPdfPath, pdf.buffer);
-    } catch (error) {
-      console.log('Error writing file: ', error);
-    }
+      const categoriesInput = dto.categories.split(',');
 
-    return book;
+      //check if the list of categories is valid
+      const categories = await this.prisma.category.findMany({
+        where: {
+          slug: {
+            in: categoriesInput,
+          },
+        },
+      });
+
+      if (!categories || categories.length < 1)
+        throw new BadRequestException('Invalid list of categories');
+
+      const oldBook = await this.getBook(slug);
+
+      if (!oldBook)
+        throw new BadRequestException('No book found with the given slug');
+
+      //*generating a book slug (number + title) if title changed
+      const newSlug =
+        dto.title != oldBook.title ? generateBookSlug(dto.title) : slug;
+
+      const book = await this.prisma.book.update({
+        where: {
+          slug: slug,
+        },
+        data: {
+          title: dto.title,
+          slug: newSlug,
+          author: dto.author,
+          pages: parseInt(dto.pages),
+          year: parseInt(dto.year),
+          language: dto.language,
+          description: dto.description,
+          categories: {
+            set: categories,
+          },
+        },
+      });
+
+      const oldImgPath: string = 'uploads/books-imgs/' + slug + '.jpeg';
+      const oldPdfPath: string = 'uploads/books-pdfs/' + slug + '.pdf';
+      const newImgPath: string = 'uploads/books-imgs/' + book.slug + '.jpeg';
+      const newPdfPath: string = 'uploads/books-pdfs/' + book.slug + '.pdf';
+
+      //* resizing image to proper format
+      const resizedImg: Buffer = await sharp(img.buffer)
+        .resize({
+          width: 250,
+          height: 400,
+          fit: 'cover',
+        })
+        .toFormat('jpeg')
+        .toBuffer();
+
+      //* deleting old files
+      try {
+        unlinkSync(oldImgPath);
+        unlinkSync(oldPdfPath);
+      } catch (error) {
+        console.log('Error deleting file: ', error);
+      }
+
+      //* writing new files to fs
+      try {
+        writeFileSync(newImgPath, resizedImg);
+        writeFileSync(newPdfPath, pdf.buffer);
+      } catch (error) {
+        console.log('Error writing file: ', error);
+      }
+
+      return book;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new BadRequestException('A book with this slug already exists');
+        }
+      }
+      throw error;
+    }
   }
 
   async deleteBook(slug: string) {
-    const book = await this.prisma.book.findUnique({
-      where: {
-        slug: slug,
-      },
-    });
-    if (!book)
-      throw new BadRequestException('No book found with the given slug');
-    const deletedBook = await this.prisma.book.delete({
-      where: {
-        slug: slug,
-      },
-      select: {
-        title: true,
-        slug: true,
-      },
-    });
-
-    const imgPath: string = 'uploads/books-imgs/' + slug + '.jpeg';
-    const pdfPath: string = 'uploads/books-pdfs/' + slug + '.pdf';
-
     try {
-      unlinkSync(imgPath);
-      unlinkSync(pdfPath);
-    } catch (error) {
-      console.log('Error deleting file: ', error);
-    }
+      const deletedBook = await this.prisma.book.delete({
+        where: {
+          slug: slug,
+        },
+        select: {
+          title: true,
+          slug: true,
+        },
+      });
 
-    return deletedBook;
+      const imgPath: string = 'uploads/books-imgs/' + slug + '.jpeg';
+      const pdfPath: string = 'uploads/books-pdfs/' + slug + '.pdf';
+
+      //* deleting files from fs
+      try {
+        unlinkSync(imgPath);
+        unlinkSync(pdfPath);
+      } catch (error) {
+        console.log('Error deleting file: ', error);
+      }
+
+      return deletedBook;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2001') {
+          throw new BadRequestException('Book not found');
+        }
+        if (error.code === 'P2025') {
+          throw new BadRequestException('Book not found');
+        }
+      }
+      throw error;
+    }
   }
 }
