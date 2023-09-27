@@ -11,19 +11,20 @@ datasource db {
 }
 
 model Book {
-  id          Int        @id @default(autoincrement())
-  slug        String     @unique
-  title       String
-  author      String
-  year        Int
-  pages       Int
-  language    String
-  description String
-  categories  Category[]
-  ratings     Rating[]
+  id             Int        @id @default(autoincrement())
+  slug           String     @unique
+  title          String
+  author         String
+  year           Int
+  pages          Int
+  language       String
+  description    String
+  categories     Category[]
+  ratings        Rating[]
   // ISBN collection
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  usersFavourite User[]
 }
 
 model Category {
@@ -44,6 +45,7 @@ model User {
   hash        String
   isAdmin     Boolean  @default(false)
   ratings     Rating[]
+  favourites  Book[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

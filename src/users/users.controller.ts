@@ -70,4 +70,10 @@ export class UsersController {
   deleteMe(@GetUser('username') username: string) {
     return this.usersService.deleteMe(username);
   }
+
+  @UseGuards(JwtGuard)
+  @Get('me/favourites')
+  getFavourites(@GetUser('username') username: string) {
+    return this.usersService.getFavourites(username);
+  }
 }

@@ -95,4 +95,18 @@ export class UsersService {
       throw error;
     }
   }
+
+  async getFavourites(username: string) {
+    const favourites = await this.prisma.book.findMany({
+      where: {
+        usersFavourite: {
+          some: {
+            username: username,
+          },
+        },
+      },
+    });
+
+    return favourites;
+  }
 }
