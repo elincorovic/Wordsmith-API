@@ -17,6 +17,7 @@ import { validateImg } from 'src/utils/fileValidation/validate-img';
 import { validatePdf } from 'src/utils/fileValidation/validate-pdf';
 import { validateFilters } from 'src/utils/bookUtils/filters/validate-filter';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { sortBooks } from 'src/utils/bookUtils/sort-books';
 
 @Injectable()
 export class BooksService {
@@ -30,6 +31,8 @@ export class BooksService {
       const toYear = query.toYear ? parseInt(query.toYear) : null;
       const fromRating = query.fromRating ? parseInt(query.fromRating) : null;
       const toRating = query.toRating ? parseInt(query.toRating) : null;
+
+      const sortBy = query.sortBy;
 
       //* validating numeric filter options
       validateFilters(fromYear, toYear, fromRating, toRating);
@@ -61,10 +64,13 @@ export class BooksService {
         toRating,
       );
 
-      if (!booksFilteredByRating || booksFilteredByRating.length == 0)
+      //* sorting books by sortBy parameter
+      let sortedBooks = sortBooks(sortBy, booksFilteredByRating);
+
+      if (!sortedBooks || sortedBooks.length == 0)
         throw new NotFoundException('No books match the specified filters');
 
-      return booksFilteredByRating;
+      return sortedBooks;
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException('Error retreiving books');
