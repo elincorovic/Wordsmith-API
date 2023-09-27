@@ -126,4 +126,21 @@ export class UsersService {
 
     return { success: true };
   }
+
+  async removeFavourite(username: string, slug: string) {
+    const user = await this.prisma.user.update({
+      where: {
+        username: username,
+      },
+      data: {
+        favourites: {
+          disconnect: {
+            slug: slug,
+          },
+        },
+      },
+    });
+
+    return { success: true };
+  }
 }

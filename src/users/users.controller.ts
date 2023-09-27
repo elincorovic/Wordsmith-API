@@ -86,4 +86,13 @@ export class UsersController {
   ) {
     return this.usersService.addFavourite(username, dto);
   }
+
+  @UseGuards(JwtGuard)
+  @Delete('me/favourites/:slug')
+  removeFavourite(
+    @GetUser('username') username: string,
+    @Param('slug') slug: string,
+  ) {
+    return this.usersService.removeFavourite(username, slug);
+  }
 }
