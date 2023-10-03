@@ -39,3 +39,9 @@ lerna-debug.log*
 /uploads/**/*jpg
 /uploads/**/*png
 /uploads/**/*pdf
+
+!/uploads/books-imgs/the-great-gatsby.jpeg
+!/uploads/books-imgs/sapiens-a-brief-history-of-humankind.jpeg
+!/uploads/books-imgs/to-kill-a-mockingbird.jpeg
+!/uploads/books-imgs/1984.jpeg
+!/uploads/books-imgs/pride-and-prejudice.jpeg
