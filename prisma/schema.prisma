@@ -20,6 +20,7 @@ model Book {
   pages          Int
   language       String
   description    String
+  avgRating      Int
   categories     Category[]
   ratings        Rating[]
   // ISBN collection

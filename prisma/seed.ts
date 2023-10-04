@@ -58,6 +58,7 @@ async function main() {
       pages: 180,
       language: 'English',
       description: 'A classic novel about the American Dream.',
+      avgRating: 0,
       categories: {
         connect: [category1, category2],
       },
@@ -73,6 +74,7 @@ async function main() {
       pages: 443,
       language: 'English',
       description: 'A thought-provoking exploration of human history.',
+      avgRating: 0,
       categories: {
         connect: [category3, category4],
       },
@@ -88,6 +90,7 @@ async function main() {
       pages: 281,
       language: 'English',
       description: 'A novel addressing racial injustice in the American South.',
+      avgRating: 0,
       categories: {
         connect: [category5, category6],
       },
@@ -103,6 +106,7 @@ async function main() {
       pages: 328,
       language: 'English',
       description: 'A dystopian novel about a totalitarian regime.',
+      avgRating: 0,
       categories: {
         connect: [category2, category5, category6],
       },
@@ -118,6 +122,7 @@ async function main() {
       pages: 279,
       language: 'English',
       description: 'A classic romance novel set in 19th-century England.',
+      avgRating: 0,
       categories: {
         connect: [category2, category3, category4],
       },
@@ -139,55 +144,6 @@ async function main() {
       username: 'user2',
       email: 'jane@example.com',
       hash: await argon.hash('password456'),
-    },
-  });
-
-  // Create Ratings
-  const rating1 = await prisma.rating.create({
-    data: {
-      rating: 5,
-      username: user1.username,
-      bookSlug: book1.slug,
-    },
-  });
-
-  const rating2 = await prisma.rating.create({
-    data: {
-      rating: 2,
-      username: user2.username,
-      bookSlug: book2.slug,
-    },
-  });
-
-  const rating3 = await prisma.rating.create({
-    data: {
-      rating: 3,
-      username: user2.username,
-      bookSlug: book3.slug,
-    },
-  });
-
-  const rating4 = await prisma.rating.create({
-    data: {
-      rating: 4,
-      username: user2.username,
-      bookSlug: book4.slug,
-    },
-  });
-
-  const rating5 = await prisma.rating.create({
-    data: {
-      rating: 1,
-      username: user2.username,
-      bookSlug: book5.slug,
-    },
-  });
-
-  const rating6 = await prisma.rating.create({
-    data: {
-      rating: 2,
-      username: user2.username,
-      bookSlug: book1.slug,
     },
   });
 

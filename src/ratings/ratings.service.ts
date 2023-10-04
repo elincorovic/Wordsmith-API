@@ -20,6 +20,26 @@ export class RatingsService {
         },
       });
 
+      const oldBookRatings = await this.prisma.rating.aggregate({
+        where: {
+          bookSlug: dto.bookSlug,
+        },
+        _avg: {
+          rating: true,
+        },
+      });
+
+      const avgRating = oldBookRatings._avg.rating;
+
+      const book = await this.prisma.book.update({
+        where: {
+          slug: dto.bookSlug,
+        },
+        data: {
+          avgRating: avgRating,
+        },
+      });
+
       return rating;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
@@ -44,6 +64,26 @@ export class RatingsService {
             username: username,
             bookSlug: slug,
           },
+        },
+      });
+
+      const oldBookRatings = await this.prisma.rating.aggregate({
+        where: {
+          bookSlug: slug,
+        },
+        _avg: {
+          rating: true,
+        },
+      });
+
+      const avgRating = oldBookRatings._avg.rating;
+
+      const book = await this.prisma.book.update({
+        where: {
+          slug: slug,
+        },
+        data: {
+          avgRating: avgRating,
         },
       });
 

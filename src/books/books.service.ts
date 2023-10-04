@@ -6,18 +6,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { summarizeRatings } from 'src/utils/bookUtils/summarize-ratings';
 import { CreateBookDto } from './dto/create-book.dto';
 import * as sharp from 'sharp';
 import { unlinkSync, writeFile, writeFileSync } from 'fs';
 import { generateBookSlug } from 'src/utils/slugGenerators/generate-book-slug';
-import { buildFilter } from 'src/utils/bookUtils/filters/build-filter';
-import { filterRatings } from 'src/utils/bookUtils/filters/filter-ratings';
+import { buildFilter } from 'src/utils/bookUtils/build-filter';
 import { validateImg } from 'src/utils/fileValidation/validate-img';
 import { validatePdf } from 'src/utils/fileValidation/validate-pdf';
-import { validateFilters } from 'src/utils/bookUtils/filters/validate-filter';
+import { validateFilters } from 'src/utils/bookUtils/validate-filter';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { sortBooks } from 'src/utils/bookUtils/sort-books';
 
 @Injectable()
 export class BooksService {
@@ -31,16 +28,22 @@ export class BooksService {
       const toYear = query.toYear ? parseInt(query.toYear) : null;
       const fromRating = query.fromRating ? parseInt(query.fromRating) : null;
       const toRating = query.toRating ? parseInt(query.toRating) : null;
-
+      const limit = query.limit ? parseInt(query.limit) : undefined;
       const sortBy = query.sortBy;
-
       const search = query.search;
 
       //* validating numeric filter options
       validateFilters(fromYear, toYear, fromRating, toRating);
 
       //* building the prisma filter obj
-      const filterObj = buildFilter(category, fromYear, toYear, search);
+      const filterObj = buildFilter(
+        category,
+        fromYear,
+        toYear,
+        fromRating,
+        toRating,
+        search,
+      );
 
       const books = await this.prisma.book.findMany({
         where: filterObj,
@@ -48,31 +51,21 @@ export class BooksService {
           title: true,
           author: true,
           slug: true,
-          ratings: {
-            select: {
-              rating: true,
-            },
-          },
+          avgRating: true,
         },
+        take: limit,
+        orderBy:
+          sortBy === 'best-rating'
+            ? { avgRating: 'desc' }
+            : sortBy === 'author'
+            ? { author: 'asc' }
+            : { title: 'asc' },
       });
 
-      //* summarizing ratings to average rating and ratings count
-      let booksRatingsSummarized = summarizeRatings(books);
-
-      //* filtering books by rating filter options
-      let booksFilteredByRating = filterRatings(
-        booksRatingsSummarized,
-        fromRating,
-        toRating,
-      );
-
-      //* sorting books by sortBy parameter
-      let sortedBooks = sortBooks(sortBy, booksFilteredByRating);
-
-      if (!sortedBooks || sortedBooks.length == 0)
+      if (!books || books.length == 0)
         throw new NotFoundException('No books match the specified filters');
 
-      return sortedBooks;
+      return books;
     } catch (error) {
       console.log(error);
       if (error instanceof HttpException) throw error;
@@ -124,6 +117,7 @@ export class BooksService {
           year: parseInt(dto.year),
           language: dto.language,
           description: dto.description,
+          avgRating: 0,
           categories: {
             connect: categoriesInput,
           },

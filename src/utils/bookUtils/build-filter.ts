@@ -2,6 +2,8 @@ export function buildFilter(
   category: string | null,
   fromYear: number | null,
   toYear: number | null,
+  fromRating: number | null,
+  toRating: number | null,
   search: string | null,
 ) {
   let filterObj: any = {};
@@ -27,6 +29,21 @@ export function buildFilter(
   } else if (toYear) {
     filterObj.year = {
       lte: toYear,
+    };
+  }
+
+  if (fromRating && toRating) {
+    filterObj.avgRating = {
+      gte: fromRating,
+      lte: toRating,
+    };
+  } else if (fromRating) {
+    filterObj.avgRating = {
+      gte: fromRating,
+    };
+  } else if (toRating) {
+    filterObj.avgRating = {
+      lte: toRating,
     };
   }
 
