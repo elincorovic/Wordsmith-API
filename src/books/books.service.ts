@@ -31,6 +31,7 @@ export class BooksService {
       const limit = query.limit ? parseInt(query.limit) : undefined;
       const sortBy = query.sortBy;
       const search = query.search;
+      const author = query.author;
 
       //* validating numeric filter options
       validateFilters(fromYear, toYear, fromRating, toRating);
@@ -43,6 +44,7 @@ export class BooksService {
         fromRating,
         toRating,
         search,
+        author,
       );
 
       const books = await this.prisma.book.findMany({

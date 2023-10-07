@@ -5,6 +5,7 @@ export function buildFilter(
   fromRating: number | null,
   toRating: number | null,
   search: string | null,
+  author: string | null,
 ) {
   let filterObj: any = {};
   if (category) {
@@ -62,6 +63,10 @@ export function buildFilter(
         },
       },
     ];
+  }
+
+  if (author) {
+    filterObj.author = author;
   }
 
   return filterObj;
