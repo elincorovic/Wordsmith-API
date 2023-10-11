@@ -45,3 +45,5 @@ lerna-debug.log*
 !/uploads/books-imgs/to-kill-a-mockingbird.jpeg
 !/uploads/books-imgs/1984.jpeg
 !/uploads/books-imgs/pride-and-prejudice.jpeg
+
+!/uploads/books-pdfs/the-great-gatsby.jpeg
