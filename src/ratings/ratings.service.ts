@@ -37,8 +37,6 @@ export class RatingsService {
 
       avgRating = avgRating / oldBookRatings.length;
 
-      console.log(avgRating);
-
       const book = await this.prisma.book.update({
         where: {
           slug: dto.bookSlug,
@@ -75,16 +73,19 @@ export class RatingsService {
         },
       });
 
-      const oldBookRatings = await this.prisma.rating.aggregate({
+      const oldBookRatings = await this.prisma.rating.findMany({
         where: {
           bookSlug: slug,
         },
-        _avg: {
-          rating: true,
-        },
       });
 
-      const avgRating = oldBookRatings._avg.rating;
+      let avgRating = 0;
+
+      oldBookRatings.forEach((rating) => {
+        avgRating += rating.rating;
+      });
+
+      avgRating = avgRating / oldBookRatings.length;
 
       const book = await this.prisma.book.update({
         where: {
