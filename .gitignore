@@ -47,3 +47,6 @@ lerna-debug.log*
 !/uploads/books-imgs/pride-and-prejudice.jpeg
 
 !/uploads/books-pdfs/the-great-gatsby.jpeg
+
+!/uploads/users-imgs/user1.jpeg
+!/uploads/users-imgs/user2.jpeg
