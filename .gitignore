@@ -50,3 +50,10 @@ lerna-debug.log*
 
 !/uploads/users-imgs/user1.jpeg
 !/uploads/users-imgs/user2.jpeg
+
+!/uploads/categories-imgs/action.jpeg
+!/uploads/categories-imgs/biography.jpeg
+!/uploads/categories-imgs/fiction.jpeg
+!/uploads/categories-imgs/non-fiction.jpeg
+!/uploads/categories-imgs/science-fiction.jpeg
+!/uploads/categories-imgs/mystery.jpeg
