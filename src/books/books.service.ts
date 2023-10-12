@@ -198,7 +198,7 @@ export class BooksService {
         },
         data: {
           title: dto.title,
-          slug: 'the-great-gatsby',
+          slug: newSlug,
           author: dto.author,
           pages: parseInt(dto.pages),
           year: parseInt(dto.year),
