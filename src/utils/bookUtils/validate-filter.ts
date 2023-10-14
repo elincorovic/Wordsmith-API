@@ -3,8 +3,7 @@ import { BadRequestException } from '@nestjs/common';
 export function validateFilters(
   fromYear: number | undefined,
   toYear: number | undefined,
-  fromRating: number | undefined,
-  toRating: number | undefined,
+  rating: number[] | undefined,
   limit: number | undefined,
   sortBy: string | undefined,
 ) {
@@ -18,12 +17,8 @@ export function validateFilters(
     throw new BadRequestException('Invalid toYear parameter');
   }
 
-  if (fromRating !== undefined && isNaN(fromRating)) {
-    throw new BadRequestException('Invalid fromRating parameter');
-  }
-
-  if (toRating !== undefined && isNaN(toRating)) {
-    throw new BadRequestException('Invalid toRating parameter');
+  if (rating.includes(NaN)) {
+    throw new BadRequestException('Invalid rating parameter');
   }
 
   if (sortBy !== undefined && !SORT_BY.includes(sortBy)) {

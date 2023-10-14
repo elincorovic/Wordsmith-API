@@ -1,9 +1,8 @@
 export function buildFilter(
-  category: string | undefined,
+  category: string[] | undefined,
   fromYear: number | undefined,
   toYear: number | undefined,
-  fromRating: number | undefined,
-  toRating: number | undefined,
+  rating: string[] | undefined,
   search: string | undefined,
   author: string | undefined,
 ) {
@@ -33,18 +32,9 @@ export function buildFilter(
     };
   }
 
-  if (fromRating && toRating) {
+  if (rating) {
     filterObj.avgRating = {
-      gte: fromRating,
-      lte: toRating,
-    };
-  } else if (fromRating) {
-    filterObj.avgRating = {
-      gte: fromRating,
-    };
-  } else if (toRating) {
-    filterObj.avgRating = {
-      lte: toRating,
+      in: rating,
     };
   }
 

@@ -24,27 +24,25 @@ export class BooksService {
     try {
       //* converting filter options to proper types
       const category = query.category ? query.category.split(',') : undefined;
+      const rating = query.rating
+        ? query.rating.split(',').map((x) => parseInt(x))
+        : undefined;
       const fromYear = query.fromYear ? parseInt(query.fromYear) : undefined;
       const toYear = query.toYear ? parseInt(query.toYear) : undefined;
-      const fromRating = query.fromRating
-        ? parseInt(query.fromRating)
-        : undefined;
-      const toRating = query.toRating ? parseInt(query.toRating) : undefined;
       const limit = query.limit ? parseInt(query.limit) : undefined;
       const sortBy = query.sortBy;
       const search = query.search;
       const author = query.author;
 
       //* validating numeric filter options
-      validateFilters(fromYear, toYear, fromRating, toRating, limit, sortBy);
+      validateFilters(fromYear, toYear, rating, limit, sortBy);
 
       //* building the prisma filter obj
       const filterObj = buildFilter(
         category,
         fromYear,
         toYear,
-        fromRating,
-        toRating,
+        rating,
         search,
         author,
       );
