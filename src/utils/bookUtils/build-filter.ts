@@ -1,11 +1,11 @@
 export function buildFilter(
-  category: string | null,
-  fromYear: number | null,
-  toYear: number | null,
-  fromRating: number | null,
-  toRating: number | null,
-  search: string | null,
-  author: string | null,
+  category: string | undefined,
+  fromYear: number | undefined,
+  toYear: number | undefined,
+  fromRating: number | undefined,
+  toRating: number | undefined,
+  search: string | undefined,
+  author: string | undefined,
 ) {
   let filterObj: any = {};
   if (category) {

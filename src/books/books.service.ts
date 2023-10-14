@@ -23,18 +23,20 @@ export class BooksService {
   async getBooks(query: any) {
     try {
       //* converting filter options to proper types
-      const category = query.category ? query.category.split(',') : null;
-      const fromYear = query.fromYear ? parseInt(query.fromYear) : null;
-      const toYear = query.toYear ? parseInt(query.toYear) : null;
-      const fromRating = query.fromRating ? parseInt(query.fromRating) : null;
-      const toRating = query.toRating ? parseInt(query.toRating) : null;
+      const category = query.category ? query.category.split(',') : undefined;
+      const fromYear = query.fromYear ? parseInt(query.fromYear) : undefined;
+      const toYear = query.toYear ? parseInt(query.toYear) : undefined;
+      const fromRating = query.fromRating
+        ? parseInt(query.fromRating)
+        : undefined;
+      const toRating = query.toRating ? parseInt(query.toRating) : undefined;
       const limit = query.limit ? parseInt(query.limit) : undefined;
       const sortBy = query.sortBy;
       const search = query.search;
       const author = query.author;
 
       //* validating numeric filter options
-      validateFilters(fromYear, toYear, fromRating, toRating);
+      validateFilters(fromYear, toYear, fromRating, toRating, limit, sortBy);
 
       //* building the prisma filter obj
       const filterObj = buildFilter(
@@ -48,6 +50,7 @@ export class BooksService {
       );
 
       const books = await this.prisma.book.findMany({
+        take: limit,
         where: filterObj,
         select: {
           title: true,
@@ -55,7 +58,6 @@ export class BooksService {
           slug: true,
           avgRating: true,
         },
-        take: limit,
         orderBy:
           sortBy === 'best-rating'
             ? { avgRating: 'desc' }

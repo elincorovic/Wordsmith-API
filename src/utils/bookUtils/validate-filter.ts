@@ -1,24 +1,36 @@
 import { BadRequestException } from '@nestjs/common';
 
 export function validateFilters(
-  fromYear: number | null,
-  toYear: number | null,
-  fromRating: number | null,
-  toRating: number | null,
+  fromYear: number | undefined,
+  toYear: number | undefined,
+  fromRating: number | undefined,
+  toRating: number | undefined,
+  limit: number | undefined,
+  sortBy: string | undefined,
 ) {
-  if (isNaN(fromYear)) {
+  const SORT_BY = ['title', 'best-rating', 'author', 'popularity'];
+
+  if (fromYear !== undefined && isNaN(fromYear)) {
     throw new BadRequestException('Invalid fromYear parameter');
   }
 
-  if (isNaN(toYear)) {
+  if (toYear !== undefined && isNaN(toYear)) {
     throw new BadRequestException('Invalid toYear parameter');
   }
 
-  if (isNaN(fromRating)) {
+  if (fromRating !== undefined && isNaN(fromRating)) {
     throw new BadRequestException('Invalid fromRating parameter');
   }
 
-  if (isNaN(toRating)) {
+  if (toRating !== undefined && isNaN(toRating)) {
     throw new BadRequestException('Invalid toRating parameter');
+  }
+
+  if (sortBy !== undefined && !SORT_BY.includes(sortBy)) {
+    throw new BadRequestException('Invalid sortBy parameter');
+  }
+
+  if (limit !== undefined && isNaN(limit)) {
+    throw new BadRequestException('Invalid limit parameter');
   }
 }
