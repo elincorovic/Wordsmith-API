@@ -17,7 +17,7 @@ export function validateFilters(
     throw new BadRequestException('Invalid toYear parameter');
   }
 
-  if (rating.includes(NaN)) {
+  if (rating !== undefined && rating.includes(NaN)) {
     throw new BadRequestException('Invalid rating parameter');
   }
 
