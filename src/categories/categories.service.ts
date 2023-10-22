@@ -23,6 +23,9 @@ export class CategoriesService {
         slug: true,
         title: true,
       },
+      orderBy: {
+        title: 'asc',
+      },
     });
     return categories;
   }
