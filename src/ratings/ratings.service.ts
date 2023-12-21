@@ -81,11 +81,13 @@ export class RatingsService {
 
       let avgRating = 0;
 
-      oldBookRatings.forEach((rating) => {
-        avgRating += rating.rating;
-      });
+      if (oldBookRatings.length) {
+        oldBookRatings.forEach((rating) => {
+          avgRating += rating.rating;
+        });
 
-      avgRating = avgRating / oldBookRatings.length;
+        avgRating = avgRating / oldBookRatings.length;
+      }
 
       const book = await this.prisma.book.update({
         where: {

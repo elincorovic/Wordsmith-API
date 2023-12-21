@@ -2,7 +2,7 @@ export function buildFilter(
   category: string[] | undefined,
   fromYear: number | undefined,
   toYear: number | undefined,
-  rating: string[] | undefined,
+  rating: number[] | undefined,
   search: string | undefined,
   author: string | undefined,
 ) {
@@ -33,8 +33,18 @@ export function buildFilter(
   }
 
   if (rating) {
+    let minRating: number;
+    let maxrating: number;
+    if (rating.length === 1) {
+      minRating = rating[0] - 0.5;
+      maxrating = rating[0] + 0.5;
+    } else {
+      minRating = rating[0] - 0.5;
+      maxrating = rating[rating.length - 1] + 0.5;
+    }
     filterObj.avgRating = {
-      in: rating,
+      lt: maxrating,
+      gte: minRating,
     };
   }
 

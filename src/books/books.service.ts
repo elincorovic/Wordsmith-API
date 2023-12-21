@@ -25,7 +25,10 @@ export class BooksService {
       //* converting filter options to proper types
       const category = query.category ? query.category.split(',') : undefined;
       const rating = query.rating
-        ? query.rating.split(',').map((x) => parseInt(x))
+        ? query.rating
+            .split(',')
+            .map((x: string) => parseInt(x))
+            .sort()
         : undefined;
       const fromYear = query.fromYear ? parseInt(query.fromYear) : undefined;
       const toYear = query.toYear ? parseInt(query.toYear) : undefined;
